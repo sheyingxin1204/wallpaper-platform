@@ -1,0 +1,13 @@
+name: Crawl Wallpapers
+
+on:
+  workflow_dispatch:
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Placeholder
+        run: echo "No crawler provider is enabled yet."
+
