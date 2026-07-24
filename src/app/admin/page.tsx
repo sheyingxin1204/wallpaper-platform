@@ -1,9 +1,19 @@
-export default function AdminPage() {
-  return (
-    <main className="mx-auto min-h-screen max-w-5xl px-6 py-24">
-      <h1 className="text-3xl font-semibold">管理后台</h1>
-      <p className="mt-4 text-zinc-300">待接入管理员鉴权、图片上传与审核流程。</p>
-    </main>
-  );
+import { redirect } from "next/navigation";
+import { UnauthorizedError, requireAdmin } from "@/lib/auth-guard";
+import { AdminDashboard } from "./admin-dashboard";
+
+export const dynamic = "force-dynamic";
+
+async function getAdministrator() {
+  try {
+    return await requireAdmin();
+  } catch (error) {
+    if (error instanceof UnauthorizedError) redirect("/sign-in");
+    throw error;
+  }
 }
 
+export default async function AdminPage() {
+  const administrator = await getAdministrator();
+  return <AdminDashboard administratorName={administrator.name} />;
+}

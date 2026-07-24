@@ -9,4 +9,3 @@ export interface StorageService {
   getPublicUrl(key: string): string;
   deleteObject(key: string): Promise<void>;
 }
-
