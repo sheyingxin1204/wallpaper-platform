@@ -1,0 +1,20 @@
+{
+  "provider": "authorized-selector-example",
+  "version": "1.0.0",
+  "pages": [
+    {
+      "url": "https://example.com/wallpapers",
+      "sourceName": "授权来源示例",
+      "license": {
+        "type": "待确认",
+        "evidenceUrl": "https://example.com/license",
+        "notes": "运行前必须替换为已核实的授权证据。"
+      },
+      "itemSelector": ".wallpaper-card",
+      "imageSelector": "img",
+      "titleSelector": ".title",
+      "maxItems": 20,
+      "delayMs": 800
+    }
+  ]
+}

@@ -24,3 +24,28 @@ export const crawlManifestSchema = z.object({
 });
 
 export type CrawlManifest = z.infer<typeof crawlManifestSchema>;
+
+export const selectorPageSchema = z.object({
+  url: z.string().url().max(2048),
+  sourceName: z.string().trim().min(1).max(160),
+  license: z.object({
+    type: z.string().trim().min(1).max(120),
+    evidenceUrl: z.string().url().max(2048).optional(),
+    notes: z.string().trim().max(4000).optional(),
+  }),
+  itemSelector: z.string().trim().min(1).max(300),
+  imageSelector: z.string().trim().min(1).max(300),
+  titleSelector: z.string().trim().max(300).optional(),
+  authorSelector: z.string().trim().max(300).optional(),
+  descriptionSelector: z.string().trim().max(300).optional(),
+  maxItems: z.number().int().min(1).max(100).default(40),
+  delayMs: z.number().int().min(0).max(10_000).default(500),
+});
+
+export const selectorManifestSchema = z.object({
+  provider: z.string().trim().min(1).max(120),
+  version: z.string().trim().min(1).max(40),
+  pages: z.array(selectorPageSchema).min(1).max(20),
+});
+
+export type SelectorManifest = z.infer<typeof selectorManifestSchema>;
