@@ -72,6 +72,7 @@ Worker 环境变量与本地一致：`DATABASE_URL`、`R2_*`、`BETTER_AUTH_SECR
 - 浏览器直传走 R2 CORS，只允许正式站点和本地开发域名对 `staging/` 前缀执行 `PUT`，并且只配置必要方法（`PUT`、`HEAD`、`OPTIONS`）和允许的请求头。
 - TiDB 连接串使用 `mysql://` 格式并开启 TLS（`?ssl-mode=VERIFY_IDENTITY`）；页面在缺少有效连接串时会优雅降级，不会返回 500。
 - 运行 `pnpm backup` 会把数据库全表数据和 R2 对象清单导出到 `backups/`（已加入 `.gitignore`）。建议把该目录同步到独立存储，作为恢复索引和对象清单的依据。
+- 备份文件包含用户表（含密码哈希）等敏感数据，必须存放在受控的私有存储，不要上传到公开位置或提交仓库。
 
 首次从零上线请按 [DEPLOYMENT.md](DEPLOYMENT.md) 的发布运行手册操作；`pnpm release:verify` 会逐项检查发布前置条件。
 
