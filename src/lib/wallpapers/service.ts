@@ -40,17 +40,27 @@ async function audit(input: {
   await requireDatabase().insert(wallpaperAuditLogs).values({ id: randomUUID(), ...input });
 }
 
-export async function createDraft(actorId: string, title: string) {
+export async function createDraft(actorId: string, title: string, sourceSha256?: string) {
   const id = randomUUID();
   const normalizedTitle = title.trim();
   await requireDatabase().insert(wallpapers).values({
     id,
     title: normalizedTitle,
     slug: slugify(normalizedTitle, id),
+    sourceSha256,
     createdBy: actorId,
   });
   await audit({ wallpaperId: id, actorId, action: "draft_created", toStatus: "draft" });
   return id;
+}
+
+export async function findDuplicateBySourceSha256(sourceSha256: string) {
+  const [wallpaper] = await requireDatabase()
+    .select({ id: wallpapers.id, title: wallpapers.title, status: wallpapers.status })
+    .from(wallpapers)
+    .where(eq(wallpapers.sourceSha256, sourceSha256))
+    .limit(1);
+  return wallpaper ?? null;
 }
 
 export async function updateDraft(id: string, actorId: string, input: DraftInput) {

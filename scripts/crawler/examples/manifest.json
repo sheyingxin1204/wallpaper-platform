@@ -1,0 +1,19 @@
+{
+  "provider": "authorized-example",
+  "version": "1.0.0",
+  "items": [
+    {
+      "pageUrl": "https://example.com/wallpapers/demo",
+      "imageUrl": "https://example.com/images/demo.jpg",
+      "title": "示例壁纸",
+      "description": "仅用于验证清单格式，不代表已启用该来源。",
+      "sourceName": "授权来源示例",
+      "author": "Example Author",
+      "license": {
+        "type": "待确认",
+        "evidenceUrl": "https://example.com/license",
+        "notes": "运行真实采集前必须替换为已核实的授权证据。"
+      }
+    }
+  ]
+}

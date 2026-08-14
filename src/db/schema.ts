@@ -25,6 +25,8 @@ export const wallpaperStatuses = [
 ] as const;
 
 export const assetKinds = ["original", "preview_1920", "preview_960", "thumbnail_480"] as const;
+export const crawlTaskStatuses = ["running", "completed", "failed"] as const;
+export const crawlRecordStatuses = ["queued", "imported", "duplicate", "failed"] as const;
 
 export const users = mysqlTable(
   "users",
@@ -121,6 +123,25 @@ export const tags = mysqlTable(
   (table) => [uniqueIndex("tags_slug_unique").on(table.slug)],
 );
 
+export const crawlTasks = mysqlTable(
+  "crawl_tasks",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    provider: varchar("provider", { length: 120 }).notNull(),
+    providerVersion: varchar("provider_version", { length: 40 }).notNull(),
+    input: longtext("input"),
+    status: mysqlEnum("status", crawlTaskStatuses).notNull().default("running"),
+    candidateCount: int("candidate_count").notNull().default(0),
+    importedCount: int("imported_count").notNull().default(0),
+    duplicateCount: int("duplicate_count").notNull().default(0),
+    error: text("error"),
+    startedAt: datetime("started_at", { mode: "date" }).notNull(),
+    finishedAt: datetime("finished_at", { mode: "date" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [index("crawl_tasks_status_index").on(table.status), index("crawl_tasks_provider_index").on(table.provider)],
+);
+
 export const sources = mysqlTable(
   "sources",
   {
@@ -172,6 +193,34 @@ export const wallpapers = mysqlTable(
     index("wallpapers_status_published_at_index").on(table.status, table.publishedAt),
     index("wallpapers_category_id_index").on(table.categoryId),
     index("wallpapers_source_sha256_index").on(table.sourceSha256),
+  ],
+);
+
+export const crawlRecords = mysqlTable(
+  "crawl_records",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    taskId: varchar("task_id", { length: 36 })
+      .notNull()
+      .references(() => crawlTasks.id, { onDelete: "cascade" }),
+    pageUrl: varchar("page_url", { length: 2048 }).notNull(),
+    imageUrl: varchar("image_url", { length: 2048 }).notNull(),
+    title: varchar("title", { length: 200 }).notNull(),
+    author: varchar("author", { length: 160 }),
+    licenseType: varchar("license_type", { length: 120 }).notNull(),
+    licenseEvidenceUrl: varchar("license_evidence_url", { length: 2048 }),
+    licenseNotes: text("license_notes"),
+    status: mysqlEnum("status", crawlRecordStatuses).notNull().default("queued"),
+    wallpaperId: varchar("wallpaper_id", { length: 36 }).references(() => wallpapers.id, { onDelete: "set null" }),
+    sourceSha256: char("source_sha256", { length: 64 }),
+    error: text("error"),
+    capturedAt: datetime("captured_at", { mode: "date" }).notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("crawl_records_task_page_unique").on(table.taskId, table.pageUrl),
+    index("crawl_records_task_id_index").on(table.taskId),
+    index("crawl_records_source_sha256_index").on(table.sourceSha256),
   ],
 );
 
