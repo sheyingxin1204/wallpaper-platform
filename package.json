@@ -13,6 +13,7 @@
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && wrangler dev",
     "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "release:check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm cf:build && pnpm exec wrangler deploy --dry-run",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/**/*.test.ts",
