@@ -1,5 +1,6 @@
 import { drizzle } from "drizzle-orm/tidb-serverless";
 import * as schema from "./schema";
+import { InfrastructureError } from "@/lib/errors";
 
 // TiDB Cloud's serverless driver uses HTTPS, so the same client works in
 // local Node.js processes and Cloudflare Workers without a TCP connection pool.
@@ -32,7 +33,7 @@ const databaseUrl = parseDatabaseUrl(process.env.DATABASE_URL);
 export const db = drizzle(databaseUrl ?? "mysql://invalid:invalid@127.0.0.1:4000/wallpaper_platform", { schema });
 
 export function requireDatabase() {
-  if (!databaseUrl) throw new Error("DATABASE_URL is required for database access.");
+  if (!databaseUrl) throw new InfrastructureError("DATABASE_URL is required for database access.");
   return db;
 }
 

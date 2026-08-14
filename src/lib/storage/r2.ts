@@ -6,10 +6,11 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { InfrastructureError } from "@/lib/errors";
 
 const required = (name: string) => {
   const value = process.env[name];
-  if (!value) throw new Error(`${name} is required for R2 storage operations.`);
+  if (!value) throw new InfrastructureError(`${name} is required for R2 storage operations.`);
   return value;
 };
 
