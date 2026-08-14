@@ -5,6 +5,8 @@ node_modules/
 backups/
 dist/
 coverage/
+test-results/
+playwright-report/
 .env
 .env.local
 .dev.vars

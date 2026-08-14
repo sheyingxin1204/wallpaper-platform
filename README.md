@@ -53,6 +53,8 @@ pnpm dev
 
 `pnpm cf:build` 通过 OpenNext 生成 `.open-next/` 下的 Cloudflare Worker 产物；`pnpm cf:deploy` 会构建并发布到 Cloudflare。`wrangler dev` 可本地预览 Worker，若本机 workerd 无法启动（Windows 下可能缺少 Visual C++ 运行库），以 CI 的 Linux 构建结果为准。
 
+`pnpm test` 运行单元测试，`pnpm e2e` 运行 Playwright 浏览器冒烟测试（首次运行先执行 `pnpm exec playwright install chromium`）。`pnpm release:check` 会在发版前跑完 lint、类型检查、单测、Next 构建、Cloudflare 构建和 wrangler dry-run。
+
 在 GitHub 仓库的 **Settings → Secrets and variables → Actions** 中配置以下 Secrets 后，手动运行 `deploy.yml` 即可部署：
 
 ```text
