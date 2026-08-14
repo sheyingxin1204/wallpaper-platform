@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import Script from "next/script";
 import { Maximize2 } from "lucide-react";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { rateLimit } from "@/lib/rate-limit";
+import { getSiteUrl } from "@/lib/site-url";
 import { getPublishedWallpaperBySlug, incrementWallpaperView } from "@/lib/wallpapers/public-service";
 
 export const dynamic = "force-dynamic";
@@ -38,6 +40,21 @@ export default async function WallpaperDetailPage({ params }: Context) {
 
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-100">
+      <Script
+        id="wallpaper-jsonld"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ImageObject",
+            name: wallpaper.title,
+            description: wallpaper.description ?? undefined,
+            contentUrl: `${getSiteUrl().toString().replace(/\/$/, "")}/api/wallpapers/${wallpaper.id}/assets/preview_1920`,
+            ...(wallpaper.source ? { creator: wallpaper.source.author ?? undefined } : {}),
+          }),
+        }}
+      />
       <header className="border-b border-zinc-800/80">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-5">
           <Link href="/" className="text-lg font-semibold tracking-tight">壁纸集</Link>
