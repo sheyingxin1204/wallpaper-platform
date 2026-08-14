@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+// zod's .url() accepts any scheme; source/license links must only ever be
+// http(s) so they can be rendered safely in href attributes.
+export const httpUrlSchema = z
+  .string()
+  .url()
+  .refine((value) => /^https?:\/\//i.test(value), "链接必须使用 http 或 https 协议。");
+
 export const slugSchema = z
   .string()
   .trim()

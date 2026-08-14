@@ -3,12 +3,13 @@ import { z } from "zod";
 import { apiError } from "@/lib/api-response";
 import { requireAdmin } from "@/lib/auth-guard";
 import { deleteWallpaper, getAdminWallpaper, updateDraft } from "@/lib/wallpapers/service";
+import { httpUrlSchema } from "@/lib/taxonomy/schemas";
 
 const updateSchema = z.object({
   title: z.string().trim().min(1).max(200),
   description: z.string().trim().max(4000).optional(),
-  source: z.object({ name: z.string().trim().min(1).max(160), originalUrl: z.string().url().max(2048), author: z.string().trim().max(160).optional() }).optional(),
-  license: z.object({ type: z.string().trim().min(1).max(120), evidenceUrl: z.string().url().max(2048).optional(), notes: z.string().trim().max(4000).optional() }).optional(),
+  source: z.object({ name: z.string().trim().min(1).max(160), originalUrl: httpUrlSchema.max(2048), author: z.string().trim().max(160).optional() }).optional(),
+  license: z.object({ type: z.string().trim().min(1).max(120), evidenceUrl: httpUrlSchema.max(2048).optional(), notes: z.string().trim().max(4000).optional() }).optional(),
   categoryId: z.string().trim().min(1).max(36).nullable().optional(),
   tagIds: z.array(z.string().trim().min(1).max(36)).max(20).optional(),
 });
