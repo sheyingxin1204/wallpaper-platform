@@ -21,3 +21,5 @@ pnpm crawler --selector-manifest .\scripts\crawler\examples\selectors.json
 真实导入前需要在 `.env.local` 配置 `CRAWLER_ALLOWED_HOSTS`，并确保清单中的页面和图片域名都在允许列表内。导入会创建待处理的壁纸草稿，随后仍然需要运行 `pnpm processor <wallpaper-id>` 并由管理员审核发布。
 
 可以用 `pnpm processor --all 50` 批量处理队列中的候选素材；处理完成后状态是 `pending_review`，不会跳过管理员审核。
+
+生产环境只应采集持有有效 HTTPS 证书的来源。仅当使用自签名证书的受控测试源时，可设置 `CRAWLER_IGNORE_INSECURE_CERT=true`；该开关默认关闭，不应在生产采集任务中开启。

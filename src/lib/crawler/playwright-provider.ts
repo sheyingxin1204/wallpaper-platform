@@ -17,7 +17,12 @@ const imageSource = async (locator: ReturnType<import("playwright").Page["locato
 
 export async function collectWithPlaywright(manifest: SelectorManifest): Promise<CrawlCandidate[]> {
   const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext({ userAgent: process.env.CRAWLER_USER_AGENT ?? "WallpaperPlatformCrawler/1.0" });
+  const context = await browser.newContext({
+    userAgent: process.env.CRAWLER_USER_AGENT ?? "WallpaperPlatformCrawler/1.0",
+    // Only for controlled tests against self-signed local sources; production
+    // sources must use valid HTTPS certificates.
+    ignoreHTTPSErrors: process.env.CRAWLER_IGNORE_INSECURE_CERT === "true",
+  });
   const candidates: CrawlCandidate[] = [];
   try {
     for (const config of manifest.pages) {
