@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { assetKinds } from "@/db/schema";
 import { createR2DownloadUrl } from "@/lib/storage/r2";
+import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { getPublishedAsset } from "@/lib/wallpapers/public-service";
 
 type Context = { params: Promise<{ wallpaperId: string; kind: string }> };
@@ -10,6 +11,8 @@ function isAssetKind(value: string): value is (typeof assetKinds)[number] {
 }
 
 export async function GET(request: Request, context: Context) {
+  const limit = rateLimit(request, "wallpaper-asset", 120, 60_000);
+  if (!limit.allowed) return rateLimitResponse(limit.retryAfterSeconds);
   const { wallpaperId, kind } = await context.params;
   if (!isAssetKind(kind)) return NextResponse.json({ error: "图片版本不存在。" }, { status: 404 });
 
