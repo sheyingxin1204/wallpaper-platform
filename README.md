@@ -35,7 +35,7 @@ Copy-Item .env.example .env.local
 pnpm dev
 ```
 
-启动后打开 [http://localhost:3000](http://localhost:3000)。公开站仍在下一阶段建设；`/admin` 已实现管理员草稿、R2 直传、处理队列和审核状态机。
+启动后打开 [http://localhost:3000](http://localhost:3000)。公开站已实现首页瀑布流、搜索与方向/分类筛选、详情预览与下载；`/admin` 已实现管理员草稿、R2 直传、处理队列和审核状态机。
 
 ## 管理闭环初始化
 
