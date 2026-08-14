@@ -299,6 +299,16 @@ export async function completeProcessing(input: {
   for (const asset of input.assets) {
     const current = existingAssets.find((item) => item.kind === asset.kind);
     if (current) {
+      // Reprocessing may move objects to a new date-based key (e.g. across a
+      // month boundary). Delete the replaced object so R2 does not accumulate
+      // orphaned variants.
+      if (current.storageKey !== asset.storageKey) {
+        try {
+          await deleteR2Object(current.storageKey);
+        } catch (error) {
+          console.warn("Failed to clean up replaced wallpaper asset", error);
+        }
+      }
       await db.update(wallpaperAssets).set(asset).where(eq(wallpaperAssets.id, current.id));
     } else {
       await db.insert(wallpaperAssets).values({ id: randomUUID(), wallpaperId: input.id, ...asset });
