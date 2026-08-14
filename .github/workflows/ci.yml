@@ -23,6 +23,8 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+      - name: Check database schema is in sync
+        run: pnpm db:generate && git diff --exit-code -- src/db/migrations
       - name: Build Cloudflare worker
         run: pnpm cf:build
       - name: Validate Cloudflare deployment bundle

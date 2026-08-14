@@ -26,3 +26,21 @@ test("admin redirects anonymous visitors to sign-in", async ({ page }) => {
   await page.goto("/admin");
   await expect(page).toHaveURL(/\/sign-in/);
 });
+
+test("SEO endpoints respond with published content", async ({ request }) => {
+  const robots = await request.get("/robots.txt");
+  expect(robots.status()).toBe(200);
+  expect(await robots.text()).toContain("Sitemap:");
+
+  const sitemap = await request.get("/sitemap.xml");
+  expect(sitemap.status()).toBe(200);
+  expect(await sitemap.text()).toContain("<urlset");
+});
+
+test("security headers are present on page responses", async ({ request }) => {
+  const response = await request.get("/");
+  expect(response.status()).toBe(200);
+  expect(response.headers()["x-content-type-options"]).toBe("nosniff");
+  expect(response.headers()["x-frame-options"]).toBe("DENY");
+  expect(response.headers()["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+});
