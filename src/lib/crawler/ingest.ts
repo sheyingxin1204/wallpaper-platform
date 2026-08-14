@@ -81,6 +81,9 @@ export async function importCrawlCandidates(taskId: string, candidates: CrawlCan
       await writeR2Object({ key: uploadedKey, body: downloaded.body, contentType: downloaded.contentType });
       await setOriginalAsset({ wallpaperId, storageKey: uploadedKey, mimeType: downloaded.contentType });
       await queueProcessing(wallpaperId, actorId);
+      // From here the wallpaper owns the object; a record-update failure must
+      // not delete it or the queued wallpaper would be permanently broken.
+      uploadedKey = undefined;
       await markCrawlRecordImported({ id: recordId, wallpaperId, sourceSha256: downloaded.sourceSha256 });
       importedCount += 1;
     } catch (error) {
