@@ -64,6 +64,8 @@ CLOUDFLARE_API_TOKEN
 
 Worker 环境变量与本地一致：`DATABASE_URL`、`R2_*`、`BETTER_AUTH_SECRET`、`BETTER_AUTH_URL`、`NEXT_PUBLIC_SITE_URL`。这些值在 Cloudflare 控制台的 Worker 设置里配置，不要提交到仓库。
 
+数据库迁移通过独立的 `migrate.yml` 手动工作流执行：在 GitHub 仓库的 Actions 页面运行 **Migrate Database** 并把确认开关置为 true 即可。部署 `deploy.yml` 不会自动迁移数据库，避免发布时无意改动生产表结构；发布前请先手动执行一次迁移。
+
 ## 云资源安全与备份
 
 - R2 Bucket 必须保持私有。原图和派生图先落在 `staging/` 暂存前缀，只有审核发布后的对象会通过预签名链接或独立公开域名访问；暂存对象不会作为公开资源暴露。
