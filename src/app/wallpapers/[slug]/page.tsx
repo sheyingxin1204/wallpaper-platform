@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { Maximize2 } from "lucide-react";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { rateLimit } from "@/lib/rate-limit";
@@ -75,6 +76,7 @@ export default async function WallpaperDetailPage({ params }: Context) {
           </dl>
 
           <div className="mt-8 grid gap-3">
+            <a href={`/api/wallpapers/${wallpaper.id}/assets/preview_1920`} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 border border-zinc-700 px-5 py-3 text-sm text-zinc-200 transition hover:border-zinc-500"><Maximize2 size={15} />全屏预览</a>
             <a href={`/api/wallpapers/${wallpaper.id}/assets/original?download=1`} className="rounded-lg bg-lime-300 px-5 py-3 text-center text-sm font-medium text-zinc-950 transition hover:bg-lime-200">下载原图</a>
             <a href={`/api/wallpapers/${wallpaper.id}/assets/preview_1920?download=1`} className="rounded-lg border border-zinc-700 px-5 py-3 text-center text-sm text-zinc-200 transition hover:border-zinc-500">下载 1920 预览图</a>
           </div>

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { parseColorMode, parseResolutionPreset, resolutionPresets } from "@/lib/wallpapers/filters";
 import { getPublishedCategories, getPublishedWallpapers } from "@/lib/wallpapers/public-service";
 
 export const dynamic = "force-dynamic";
@@ -10,11 +11,13 @@ function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function buildQuery(input: { query?: string; orientation?: string; category?: string; page?: number }) {
+function buildQuery(input: { query?: string; orientation?: string; category?: string; resolution?: string; color?: string; page?: number }) {
   const params = new URLSearchParams();
   if (input.query) params.set("q", input.query);
   if (input.orientation) params.set("orientation", input.orientation);
   if (input.category) params.set("category", input.category);
+  if (input.resolution) params.set("resolution", input.resolution);
+  if (input.color) params.set("color", input.color);
   if (input.page && input.page > 1) params.set("page", String(input.page));
   const query = params.toString();
   return query ? `?${query}` : "";
@@ -26,10 +29,12 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
   const orientationValue = first(params.orientation);
   const orientation = orientationValue === "landscape" || orientationValue === "portrait" || orientationValue === "square" ? orientationValue : undefined;
   const category = first(params.category)?.trim() || undefined;
+  const resolution = parseResolutionPreset(first(params.resolution));
+  const color = parseColorMode(first(params.color));
   const pageValue = Number.parseInt(first(params.page) ?? "1", 10);
   const page = Number.isFinite(pageValue) && pageValue > 0 ? pageValue : 1;
   const [result, categories] = await Promise.all([
-    getPublishedWallpapers({ query, orientation, category, page }),
+    getPublishedWallpapers({ query, orientation, category, minWidth: resolution?.minWidth, minHeight: resolution?.minHeight, colorMode: color, page }),
     getPublishedCategories(),
   ]);
 
@@ -47,7 +52,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
         <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight sm:text-6xl">把喜欢的画面，留在每一次打开屏幕时。</h1>
         <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-400">精选、整理并记录来源的高质量壁纸。所有公开内容都经过处理和审核。</p>
 
-        <form className="mt-10 grid gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4 md:grid-cols-[1fr_180px_180px_auto]" action="/" method="get">
+        <form className="mt-10 grid gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4 md:grid-cols-[1fr_150px_150px_150px_130px_auto]" action="/" method="get">
           <label className="sr-only" htmlFor="q">搜索标题</label>
           <input id="q" name="q" defaultValue={query} placeholder="搜索壁纸标题" className="min-w-0 rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none transition placeholder:text-zinc-600 focus:border-lime-300" />
           <label className="sr-only" htmlFor="orientation">方向</label>
@@ -62,6 +67,17 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
             <option value="">全部分类</option>
             {categories.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
           </select>
+          <label className="sr-only" htmlFor="resolution">分辨率</label>
+          <select id="resolution" name="resolution" defaultValue={resolution?.value ?? ""} className="rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none focus:border-lime-300">
+            <option value="">全部分辨率</option>
+            {resolutionPresets.map((preset) => <option key={preset.value} value={preset.value}>{preset.label}</option>)}
+          </select>
+          <label className="sr-only" htmlFor="color">色彩</label>
+          <select id="color" name="color" defaultValue={color ?? ""} className="rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none focus:border-lime-300">
+            <option value="">全部色彩</option>
+            <option value="dark">深色</option>
+            <option value="light">浅色</option>
+          </select>
           <button type="submit" className="rounded-lg bg-lime-300 px-5 py-3 text-sm font-medium text-zinc-950 transition hover:bg-lime-200">搜索</button>
         </form>
       </section>
@@ -72,7 +88,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
             <h2 className="text-xl font-medium">最新发布</h2>
             <p className="mt-1 text-sm text-zinc-500">{query ? `正在搜索“${query}”` : "持续收集值得保存的画面"}</p>
           </div>
-          {page > 1 && <Link href={`/${buildQuery({ query, orientation, category, page: page - 1 })}`} className="text-sm text-zinc-400 hover:text-white">返回上一页</Link>}
+          {page > 1 && <Link href={`/${buildQuery({ query, orientation, category, resolution: resolution?.value, color, page: page - 1 })}`} className="text-sm text-zinc-400 hover:text-white">返回上一页</Link>}
         </div>
 
         {result.items.length ? (
@@ -103,9 +119,9 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
         )}
 
         {(page > 1 || result.hasNext) && <nav className="mt-10 flex items-center justify-center gap-4 text-sm" aria-label="分页">
-          {page > 1 && <Link href={`/${buildQuery({ query, orientation, category, page: page - 1 })}`} className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-300 hover:border-zinc-500">上一页</Link>}
+          {page > 1 && <Link href={`/${buildQuery({ query, orientation, category, resolution: resolution?.value, color, page: page - 1 })}`} className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-300 hover:border-zinc-500">上一页</Link>}
           <span className="text-zinc-500">第 {page} 页</span>
-          {result.hasNext && <Link href={`/${buildQuery({ query, orientation, category, page: page + 1 })}`} className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-300 hover:border-zinc-500">下一页</Link>}
+          {result.hasNext && <Link href={`/${buildQuery({ query, orientation, category, resolution: resolution?.value, color, page: page + 1 })}`} className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-300 hover:border-zinc-500">下一页</Link>}
         </nav>}
       </section>
     </main>

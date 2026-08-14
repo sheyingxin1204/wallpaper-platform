@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gt, inArray, like, lt, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, gt, inArray, like, lt, or, sql } from "drizzle-orm";
 import { isDatabaseConfigured, requireDatabase } from "@/db";
 import { assetKinds, categories, licenses, sources, tags, wallpaperAssets, wallpaperTags, wallpapers } from "@/db/schema";
 
@@ -32,10 +32,15 @@ const escapeLike = (value: string) => value.replace(/[\\%_]/g, "\\$&");
 
 const assetMap = (assets: Array<{ kind: PublicAssetKind; width: number | null; height: number | null }>) => assets;
 
+const luminanceSql = sql<number>`(0.299 * CONV(SUBSTRING(${wallpapers.dominantColor}, 2, 2), 16, 10) + 0.587 * CONV(SUBSTRING(${wallpapers.dominantColor}, 4, 2), 16, 10) + 0.114 * CONV(SUBSTRING(${wallpapers.dominantColor}, 6, 2), 16, 10))`;
+
 export async function getPublishedWallpapers(input: {
   query?: string;
   orientation?: "landscape" | "portrait" | "square";
   category?: string;
+  minWidth?: number;
+  minHeight?: number;
+  colorMode?: "dark" | "light";
   page?: number;
   pageSize?: number;
 }) {
@@ -48,6 +53,11 @@ export async function getPublishedWallpapers(input: {
   if (input.query?.trim()) conditions.push(like(wallpapers.title, `%${escapeLike(input.query.trim())}%`));
   if (input.orientation) conditions.push(eq(wallpapers.orientation, input.orientation));
   if (input.category) conditions.push(eq(categories.slug, input.category));
+  if (input.minWidth && input.minHeight) {
+    conditions.push(sql`${wallpapers.width} >= ${input.minWidth} AND ${wallpapers.height} >= ${input.minHeight}`);
+  }
+  if (input.colorMode === "dark") conditions.push(lt(luminanceSql, 0.35));
+  if (input.colorMode === "light") conditions.push(gte(luminanceSql, 0.35));
 
   const rows = await db
     .select({
