@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray, ne } from "drizzle-orm";
 import { requireDatabase } from "@/db";
 import {
   licenses,
@@ -146,6 +146,14 @@ export async function transitionWallpaper(input: {
       .from(wallpaperAssets)
       .where(and(eq(wallpaperAssets.wallpaperId, input.id), inArray(wallpaperAssets.kind, [...requiredAssetKinds])));
     if (assets.length !== requiredAssetKinds.length) throw new Error("发布前必须完成全部派生图处理。");
+    if (wallpaper.sourceSha256) {
+      const [duplicate] = await db
+        .select({ id: wallpapers.id, title: wallpapers.title })
+        .from(wallpapers)
+        .where(and(ne(wallpapers.id, input.id), eq(wallpapers.sourceSha256, wallpaper.sourceSha256), inArray(wallpapers.status, ["pending_review", "published", "unlisted"] as const)))
+        .limit(1);
+      if (duplicate) throw new Error(`检测到与“${duplicate.title}”相同的原始图片，请先确认是否重复。`);
+    }
   }
   await db
     .update(wallpapers)
@@ -163,6 +171,7 @@ export async function transitionWallpaper(input: {
 
 export async function completeProcessing(input: {
   id: string;
+  sourceSha256: string;
   width: number;
   height: number;
   orientation: "landscape" | "portrait" | "square";
@@ -200,6 +209,7 @@ export async function completeProcessing(input: {
       height: input.height,
       orientation: input.orientation,
       dominantColor: input.dominantColor,
+      sourceSha256: input.sourceSha256,
       processingError: null,
     })
     .where(eq(wallpapers.id, input.id));

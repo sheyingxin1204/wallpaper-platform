@@ -71,6 +71,7 @@ export async function processWallpaper(wallpaperId: string) {
     }
     await completeProcessing({
       id: wallpaperId,
+      sourceSha256: sha256(source),
       width: metadata.width,
       height: metadata.height,
       orientation,

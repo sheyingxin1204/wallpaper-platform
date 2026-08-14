@@ -158,6 +158,7 @@ export const wallpapers = mysqlTable(
     categoryId: varchar("category_id", { length: 36 }).references(() => categories.id, { onDelete: "set null" }),
     sourceId: varchar("source_id", { length: 36 }).references(() => sources.id, { onDelete: "set null" }),
     licenseId: varchar("license_id", { length: 36 }).references(() => licenses.id, { onDelete: "set null" }),
+    sourceSha256: char("source_sha256", { length: 64 }),
     createdBy: varchar("created_by", { length: 36 })
       .notNull()
       .references(() => users.id),
@@ -170,6 +171,7 @@ export const wallpapers = mysqlTable(
     uniqueIndex("wallpapers_slug_unique").on(table.slug),
     index("wallpapers_status_published_at_index").on(table.status, table.publishedAt),
     index("wallpapers_category_id_index").on(table.categoryId),
+    index("wallpapers_source_sha256_index").on(table.sourceSha256),
   ],
 );
 
