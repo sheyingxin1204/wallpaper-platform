@@ -171,3 +171,13 @@ export async function getPublishedAsset(wallpaperId: string, kind: PublicAssetKi
     .limit(1);
   return row ?? null;
 }
+
+export async function getPublishedSlugs() {
+  if (!isDatabaseConfigured()) return [] as Array<{ slug: string; updatedAt: Date }>;
+  const db = requireDatabase();
+  return db
+    .select({ slug: wallpapers.slug, updatedAt: wallpapers.updatedAt })
+    .from(wallpapers)
+    .where(eq(wallpapers.status, "published" as const))
+    .orderBy(desc(wallpapers.publishedAt));
+}
