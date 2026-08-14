@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, eq, inArray, ne } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, ne } from "drizzle-orm";
 import { requireDatabase } from "@/db";
 import {
   licenses,
@@ -8,6 +8,7 @@ import {
   wallpaperAuditLogs,
   wallpaperTags,
   wallpapers,
+  users,
 } from "@/db/schema";
 import type { WallpaperStatus } from "@/lib/wallpapers/status";
 import { canTransition } from "@/lib/wallpapers/status";
@@ -110,6 +111,26 @@ export async function updateDraft(id: string, actorId: string, input: DraftInput
 
 export async function getAdminWallpapers() {
   return requireDatabase().select().from(wallpapers).orderBy(asc(wallpapers.createdAt));
+}
+
+export async function listAuditLogs(limit = 200) {
+  return requireDatabase()
+    .select({
+      id: wallpaperAuditLogs.id,
+      wallpaperId: wallpaperAuditLogs.wallpaperId,
+      wallpaperTitle: wallpapers.title,
+      actorName: users.name,
+      action: wallpaperAuditLogs.action,
+      fromStatus: wallpaperAuditLogs.fromStatus,
+      toStatus: wallpaperAuditLogs.toStatus,
+      reason: wallpaperAuditLogs.reason,
+      createdAt: wallpaperAuditLogs.createdAt,
+    })
+    .from(wallpaperAuditLogs)
+    .leftJoin(wallpapers, eq(wallpaperAuditLogs.wallpaperId, wallpapers.id))
+    .leftJoin(users, eq(wallpaperAuditLogs.actorId, users.id))
+    .orderBy(desc(wallpaperAuditLogs.createdAt))
+    .limit(Math.min(Math.max(limit, 1), 500));
 }
 
 export async function getPendingProcessingIds(limit = 50) {

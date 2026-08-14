@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
-import { FileUp, FolderTree, History, LogOut, Plus, RefreshCw, Save, Tags } from "lucide-react";
+import { FileUp, FolderTree, History, LogOut, Plus, RefreshCw, Save, ScrollText, Tags } from "lucide-react";
 
 type Status = "draft" | "pending_processing" | "pending_review" | "published" | "unlisted" | "rejected";
 type Wallpaper = { id: string; title: string; status: Status; processingError: string | null };
@@ -17,7 +17,8 @@ type Category = { id: string; name: string; slug: string; sortOrder: number; ena
 type Tag = { id: string; name: string; slug: string };
 type CrawlTask = { id: string; provider: string; providerVersion: string; input: string | null; status: "running" | "completed" | "failed"; candidateCount: number; importedCount: number; duplicateCount: number; error: string | null; startedAt: string; finishedAt: string | null };
 type CrawlRecord = { id: string; pageUrl: string; imageUrl: string; title: string; author: string | null; licenseType: string; status: "queued" | "imported" | "duplicate" | "failed"; wallpaperId: string | null; error: string | null; capturedAt: string };
-type View = "wallpapers" | "taxonomy" | "crawl";
+type AuditLog = { id: string; wallpaperId: string; wallpaperTitle: string | null; actorName: string | null; action: string; fromStatus: string | null; toStatus: string | null; reason: string | null; createdAt: string };
+type View = "wallpapers" | "taxonomy" | "crawl" | "audit";
 
 const labels: Record<Status, string> = { draft: "草稿", pending_processing: "处理中", pending_review: "待审核", published: "已发布", unlisted: "已下架", rejected: "已拒绝" };
 const crawlTaskLabels: Record<CrawlTask["status"], string> = { running: "运行中", completed: "已完成", failed: "失败" };
@@ -48,6 +49,7 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
   const [crawlTasks, setCrawlTasks] = useState<CrawlTask[]>([]);
   const [selectedTaskId, setSelectedTaskId] = useState("");
   const [crawlRecords, setCrawlRecords] = useState<CrawlRecord[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [sourceName, setSourceName] = useState("");
@@ -109,6 +111,15 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
     }
   };
 
+  const loadAuditLogs = useCallback(async () => {
+    try {
+      const data = await api<{ logs: AuditLog[] }>("/api/admin/audit-logs");
+      setAuditLogs(data.logs);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "无法加载操作日志。");
+    }
+  }, []);
+
   useEffect(() => {
     const timer = window.setTimeout(() => void refresh(), 0);
     return () => window.clearTimeout(timer);
@@ -123,6 +134,11 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
     const timer = window.setTimeout(() => void loadCrawlTasks(), 0);
     return () => window.clearTimeout(timer);
   }, [loadCrawlTasks]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => void loadAuditLogs(), 0);
+    return () => window.clearTimeout(timer);
+  }, [loadAuditLogs]);
 
   const select = async (id: string) => {
     try {
@@ -327,6 +343,7 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
           <button type="button" onClick={() => setView("wallpapers")} className={`flex items-center gap-2 border px-4 py-2 text-sm ${view === "wallpapers" ? "border-lime-300 text-lime-300" : "border-transparent text-zinc-400 hover:text-white"}`}><FileUp size={15} />壁纸</button>
           <button type="button" onClick={() => setView("taxonomy")} className={`flex items-center gap-2 border px-4 py-2 text-sm ${view === "taxonomy" ? "border-lime-300 text-lime-300" : "border-transparent text-zinc-400 hover:text-white"}`}><Tags size={15} />分类与标签</button>
           <button type="button" onClick={() => setView("crawl")} className={`flex items-center gap-2 border px-4 py-2 text-sm ${view === "crawl" ? "border-lime-300 text-lime-300" : "border-transparent text-zinc-400 hover:text-white"}`}><History size={15} />采集记录</button>
+          <button type="button" onClick={() => setView("audit")} className={`flex items-center gap-2 border px-4 py-2 text-sm ${view === "audit" ? "border-lime-300 text-lime-300" : "border-transparent text-zinc-400 hover:text-white"}`}><ScrollText size={15} />操作日志</button>
         </nav>
       </header>
 
@@ -449,7 +466,7 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
             </ul>
           </section>
         </div>
-      ) : (
+      ) : view === "crawl" ? (
         <div className="mx-auto grid max-w-7xl gap-6 px-6 py-6 lg:grid-cols-[300px_1fr]">
           <aside className="border border-zinc-800 bg-zinc-900/50 p-3">
             <p className="px-1 pb-2 text-sm font-medium">采集任务</p>
@@ -493,6 +510,26 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
               </div>
             )}
           </section>
+        </div>
+      ) : (
+        <div className="mx-auto max-w-7xl px-6 py-6">
+          <div className="space-y-3">
+            {auditLogs.map((log) => (
+              <article key={log.id} className="border border-zinc-800 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="min-w-0 truncate text-sm font-medium">{log.wallpaperTitle ?? "已删除壁纸"}</h3>
+                  <span className="shrink-0 text-xs text-zinc-500">{new Date(log.createdAt).toLocaleString()}</span>
+                </div>
+                <dl className="mt-2 grid gap-1 text-xs text-zinc-500">
+                  <div><dt className="inline">操作：</dt><dd className="inline text-zinc-300">{log.action}</dd></div>
+                  <div><dt className="inline">操作者：</dt><dd className="inline">{log.actorName ?? "系统"}</dd></div>
+                  {(log.fromStatus || log.toStatus) && <div><dt className="inline">状态：</dt><dd className="inline">{log.fromStatus ?? "—"} → {log.toStatus ?? "—"}</dd></div>}
+                  {log.reason && <div className="min-w-0"><dt className="inline">原因：</dt><dd className="inline">{log.reason}</dd></div>}
+                </dl>
+              </article>
+            ))}
+            {!auditLogs.length && <p className="border border-dashed border-zinc-700 p-10 text-center text-sm text-zinc-500">暂无操作日志。</p>}
+          </div>
         </div>
       )}
     </main>
