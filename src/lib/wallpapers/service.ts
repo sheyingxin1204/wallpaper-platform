@@ -6,10 +6,12 @@ import {
   sources,
   wallpaperAssets,
   wallpaperAuditLogs,
+  wallpaperTags,
   wallpapers,
 } from "@/db/schema";
 import type { WallpaperStatus } from "@/lib/wallpapers/status";
 import { canTransition } from "@/lib/wallpapers/status";
+import { assertCategoryExists, assertTagsExist } from "@/lib/taxonomy/service";
 
 export const requiredAssetKinds = ["original", "preview_1920", "preview_960", "thumbnail_480"] as const;
 
@@ -18,6 +20,8 @@ export type DraftInput = {
   description?: string;
   source?: { name: string; originalUrl: string; author?: string };
   license?: { type: string; evidenceUrl?: string; notes?: string };
+  categoryId?: string | null;
+  tagIds?: string[];
 };
 
 const slugify = (title: string, id: string) => {
@@ -87,9 +91,18 @@ export async function updateDraft(id: string, actorId: string, input: DraftInput
   }
 
   const title = input.title.trim();
+  const categoryId = input.categoryId === undefined ? wallpaper.categoryId : input.categoryId;
+  if (categoryId) await assertCategoryExists(categoryId);
+  if (input.tagIds) {
+    await assertTagsExist(input.tagIds);
+    await db.delete(wallpaperTags).where(eq(wallpaperTags.wallpaperId, id));
+    if (input.tagIds.length) {
+      await db.insert(wallpaperTags).values(input.tagIds.map((tagId) => ({ wallpaperId: id, tagId })));
+    }
+  }
   await db
     .update(wallpapers)
-    .set({ title, slug: slugify(title, id), description: input.description?.trim() || null, sourceId, licenseId })
+    .set({ title, slug: slugify(title, id), description: input.description?.trim() || null, sourceId, licenseId, categoryId })
     .where(eq(wallpapers.id, id));
   await audit({ wallpaperId: id, actorId, action: "draft_updated", fromStatus: "draft", toStatus: "draft" });
 }
@@ -114,7 +127,11 @@ export async function getAdminWallpaper(id: string) {
   const assets = await db.select().from(wallpaperAssets).where(eq(wallpaperAssets.wallpaperId, id));
   const [source] = wallpaper.sourceId ? await db.select().from(sources).where(eq(sources.id, wallpaper.sourceId)).limit(1) : [];
   const [license] = wallpaper.licenseId ? await db.select().from(licenses).where(eq(licenses.id, wallpaper.licenseId)).limit(1) : [];
-  return { ...wallpaper, assets, source: source ?? null, license: license ?? null };
+  const tagRows = await db
+    .select({ id: wallpaperTags.tagId })
+    .from(wallpaperTags)
+    .where(eq(wallpaperTags.wallpaperId, id));
+  return { ...wallpaper, assets, source: source ?? null, license: license ?? null, tagIds: tagRows.map((row) => row.id) };
 }
 
 export async function setOriginalAsset(input: { wallpaperId: string; storageKey: string; mimeType: string }) {

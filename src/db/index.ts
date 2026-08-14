@@ -40,4 +40,6 @@ export function isDatabaseConfigured() {
   return Boolean(databaseUrl);
 }
 
+export { parseDatabaseUrl };
+
 export { schema };
