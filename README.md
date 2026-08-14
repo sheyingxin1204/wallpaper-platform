@@ -73,6 +73,8 @@ Worker 环境变量与本地一致：`DATABASE_URL`、`R2_*`、`BETTER_AUTH_SECR
 - TiDB 连接串使用 `mysql://` 格式并开启 TLS（`?ssl-mode=VERIFY_IDENTITY`）；页面在缺少有效连接串时会优雅降级，不会返回 500。
 - 运行 `pnpm backup` 会把数据库全表数据和 R2 对象清单导出到 `backups/`（已加入 `.gitignore`）。建议把该目录同步到独立存储，作为恢复索引和对象清单的依据。
 
+首次从零上线请按 [DEPLOYMENT.md](DEPLOYMENT.md) 的发布运行手册操作；`pnpm release:verify` 会逐项检查发布前置条件。
+
 ## 素材与版权
 
 本项目不会将“可被访问”视为“可被转载”。采集器只应处理明确允许的来源；每个素材都必须保存来源、作者与授权信息，且在后台审核通过前不得公开发布。
