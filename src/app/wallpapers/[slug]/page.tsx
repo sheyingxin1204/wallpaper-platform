@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
 import { Maximize2 } from "lucide-react";
@@ -8,6 +7,7 @@ import { notFound } from "next/navigation";
 import { rateLimit } from "@/lib/rate-limit";
 import { getSiteUrl } from "@/lib/site-url";
 import { getPublishedWallpaperBySlug, incrementWallpaperView } from "@/lib/wallpapers/public-service";
+import { WallpaperImage } from "@/components/wallpaper-image";
 
 export const dynamic = "force-dynamic";
 
@@ -65,7 +65,7 @@ export default async function WallpaperDetailPage({ params }: Context) {
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-10 lg:grid-cols-[minmax(0,1fr)_360px]">
         <section>
           <div className="relative min-h-[420px] overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 lg:min-h-[620px]">
-            <Image src={`/api/wallpapers/${wallpaper.id}/assets/preview_1920`} alt={wallpaper.title} fill sizes="(max-width: 1024px) 100vw, 70vw" className="object-contain" unoptimized priority />
+            <WallpaperImage src={`/api/wallpapers/${wallpaper.id}/assets/preview_1920`} alt={wallpaper.title} sizes="(max-width: 1024px) 100vw, 70vw" className="object-contain" priority />
           </div>
         </section>
 
