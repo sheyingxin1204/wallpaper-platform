@@ -54,6 +54,16 @@ export default async function WallpaperDetailPage({ params }: Context) {
             <div className="flex justify-between gap-4"><dt className="text-zinc-500">尺寸</dt><dd>{wallpaper.width && wallpaper.height ? `${wallpaper.width} × ${wallpaper.height}` : "未知"}</dd></div>
             <div className="flex justify-between gap-4"><dt className="text-zinc-500">方向</dt><dd>{wallpaper.orientation === "landscape" ? "横屏" : wallpaper.orientation === "portrait" ? "竖屏" : wallpaper.orientation === "square" ? "方形" : "未知"}</dd></div>
             <div className="flex justify-between gap-4"><dt className="text-zinc-500">分类</dt><dd>{wallpaper.category?.name ?? "未分类"}</dd></div>
+            {wallpaper.tags.length > 0 && (
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <dt className="text-zinc-500">标签</dt>
+                <dd className="flex flex-wrap gap-2">
+                  {wallpaper.tags.map((tag) => (
+                    <span key={tag.slug} className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-300">{tag.name}</span>
+                  ))}
+                </dd>
+              </div>
+            )}
           </dl>
 
           <div className="mt-8 grid gap-3">

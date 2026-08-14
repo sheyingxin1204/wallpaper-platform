@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, like } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, like } from "drizzle-orm";
 import { isDatabaseConfigured, requireDatabase } from "@/db";
 import { assetKinds, categories, licenses, sources, tags, wallpaperAssets, wallpaperTags, wallpapers } from "@/db/schema";
 
@@ -89,6 +89,16 @@ export async function getPublishedWallpapers(input: {
     })),
     hasNext,
   };
+}
+
+export async function getPublishedCategories() {
+  if (!isDatabaseConfigured()) return [] as Array<{ name: string; slug: string }>;
+  const db = requireDatabase();
+  return db
+    .select({ name: categories.name, slug: categories.slug })
+    .from(categories)
+    .where(eq(categories.enabled, true))
+    .orderBy(asc(categories.sortOrder), asc(categories.name));
 }
 
 export async function getPublishedWallpaperBySlug(slug: string): Promise<PublicWallpaperDetail | null> {
