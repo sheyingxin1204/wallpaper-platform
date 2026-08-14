@@ -6,6 +6,11 @@ export const metadata: Metadata = {
   title: "Wallpaper Platform",
   description: "高质量壁纸浏览与下载平台",
   metadataBase: getSiteUrl(),
+  openGraph: {
+    title: "Wallpaper Platform",
+    description: "高质量壁纸浏览与下载平台",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
