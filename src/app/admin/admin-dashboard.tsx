@@ -54,6 +54,8 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
   const [crawlRecordsPage, setCrawlRecordsPage] = useState(1);
   const [crawlRecordsHasNext, setCrawlRecordsHasNext] = useState(false);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [auditLogsPage, setAuditLogsPage] = useState(1);
+  const [auditLogsHasNext, setAuditLogsHasNext] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [sourceName, setSourceName] = useState("");
@@ -146,12 +148,26 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
 
   const loadAuditLogs = useCallback(async () => {
     try {
-      const data = await api<{ logs: AuditLog[] }>("/api/admin/audit-logs");
+      const data = await api<{ logs: AuditLog[]; hasNext: boolean }>("/api/admin/audit-logs?page=1");
       setAuditLogs(data.logs);
+      setAuditLogsPage(1);
+      setAuditLogsHasNext(data.hasNext);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "无法加载操作日志。");
     }
   }, []);
+
+  const loadMoreAuditLogs = async () => {
+    try {
+      const next = auditLogsPage + 1;
+      const data = await api<{ logs: AuditLog[]; hasNext: boolean }>(`/api/admin/audit-logs?page=${next}`);
+      setAuditLogs((current) => [...current, ...data.logs]);
+      setAuditLogsPage(next);
+      setAuditLogsHasNext(data.hasNext);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "无法加载更多操作日志。");
+    }
+  };
 
   useEffect(() => {
     const timer = window.setTimeout(() => void refresh(), 0);
@@ -595,6 +611,7 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
               </article>
             ))}
             {!auditLogs.length && <p className="border border-dashed border-zinc-700 p-10 text-center text-sm text-zinc-500">暂无操作日志。</p>}
+            {auditLogsHasNext && <button type="button" onClick={() => void loadMoreAuditLogs()} className="mt-3 w-full border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:border-zinc-500">加载更多日志</button>}
           </div>
         </div>
       )}

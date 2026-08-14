@@ -139,8 +139,11 @@ export async function getAdminWallpapersPage(page: number, pageSize = 50) {
   return { items: rows.slice(0, safeSize), hasNext };
 }
 
-export async function listAuditLogs(limit = 200) {
-  return requireDatabase()
+export async function listAuditLogs(page = 1, pageSize = 200) {
+  const db = requireDatabase();
+  const safePage = Math.max(page, 1);
+  const safeSize = Math.min(Math.max(pageSize, 1), 500);
+  const rows = await db
     .select({
       id: wallpaperAuditLogs.id,
       wallpaperId: wallpaperAuditLogs.wallpaperId,
@@ -156,7 +159,10 @@ export async function listAuditLogs(limit = 200) {
     .leftJoin(wallpapers, eq(wallpaperAuditLogs.wallpaperId, wallpapers.id))
     .leftJoin(users, eq(wallpaperAuditLogs.actorId, users.id))
     .orderBy(desc(wallpaperAuditLogs.createdAt))
-    .limit(Math.min(Math.max(limit, 1), 500));
+    .limit(safeSize + 1)
+    .offset((safePage - 1) * safeSize);
+  const hasNext = rows.length > safeSize;
+  return { logs: rows.slice(0, safeSize), hasNext };
 }
 
 export async function getPendingProcessingIds(limit = 50) {
