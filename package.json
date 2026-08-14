@@ -20,6 +20,7 @@
     "db:migrate": "drizzle-kit migrate",
     "crawler": "tsx --env-file-if-exists=.env.local scripts/crawler/src/index.ts",
     "processor": "tsx --env-file-if-exists=.env.local scripts/processor/src/index.ts",
+    "backup": "tsx --env-file-if-exists=.env.local scripts/backup.ts",
     "admin:create": "tsx --env-file-if-exists=.env.local scripts/create-admin.ts"
   },
   "dependencies": {
