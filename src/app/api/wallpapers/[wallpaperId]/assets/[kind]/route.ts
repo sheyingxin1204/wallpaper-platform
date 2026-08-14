@@ -16,6 +16,12 @@ function redirect(url: string) {
   return NextResponse.redirect(url, { headers: { "Cache-Control": "no-store" } });
 }
 
+// Public-domain derived images are stable, so a plain 302 (followed by every
+// image crawler) with a short cache window keeps repeat loads cheap.
+function publicRedirect(url: string) {
+  return NextResponse.redirect(url, { status: 302, headers: { "Cache-Control": "public, max-age=60" } });
+}
+
 export async function GET(request: Request, context: Context) {
   const limit = rateLimit(request, "wallpaper-asset", 120, 60_000);
   if (!limit.allowed) return rateLimitResponse(limit.retryAfterSeconds);
@@ -30,7 +36,7 @@ export async function GET(request: Request, context: Context) {
     // Originals live under the private `staging/` prefix and must always use
     // short-lived presigned URLs; only derived variants may use a public domain.
     const publicUrl = download || kind === "original" ? null : publicAssetUrl(asset.storageKey);
-    if (publicUrl) return redirect(publicUrl);
+    if (publicUrl) return publicRedirect(publicUrl);
     // Only original downloads count towards download stats, and only once per
     // client within the rolling window so refresh spam cannot inflate numbers.
     if (kind === "original" && download) {
