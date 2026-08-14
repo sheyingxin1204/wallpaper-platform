@@ -10,6 +10,12 @@ function isAssetKind(value: string): value is (typeof assetKinds)[number] {
   return assetKinds.includes(value as (typeof assetKinds)[number]);
 }
 
+// Presigned URLs expire after 10 minutes, so the redirect itself must never be
+// cached by Cloudflare or any upstream proxy.
+function redirect(url: string) {
+  return NextResponse.redirect(url, { headers: { "Cache-Control": "no-store" } });
+}
+
 export async function GET(request: Request, context: Context) {
   const limit = rateLimit(request, "wallpaper-asset", 120, 60_000);
   if (!limit.allowed) return rateLimitResponse(limit.retryAfterSeconds);
@@ -24,7 +30,7 @@ export async function GET(request: Request, context: Context) {
     // Originals live under the private `staging/` prefix and must always use
     // short-lived presigned URLs; only derived variants may use a public domain.
     const publicUrl = download || kind === "original" ? null : publicAssetUrl(asset.storageKey);
-    if (publicUrl) return NextResponse.redirect(publicUrl);
+    if (publicUrl) return redirect(publicUrl);
     // Only original downloads count towards download stats, and only once per
     // client within the rolling window so refresh spam cannot inflate numbers.
     if (kind === "original" && download) {
@@ -37,7 +43,7 @@ export async function GET(request: Request, context: Context) {
       contentType: asset.mimeType,
       ...(download ? { downloadFilename: `${asset.title || "wallpaper"}.webp` } : {}),
     });
-    return NextResponse.redirect(url);
+    return redirect(url);
   } catch (error) {
     console.error("Failed to create wallpaper asset URL", error);
     return NextResponse.json({ error: "图片暂时无法访问。" }, { status: 503 });
