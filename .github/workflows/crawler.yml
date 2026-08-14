@@ -2,12 +2,62 @@ name: Crawl Wallpapers
 
 on:
   workflow_dispatch:
+    inputs:
+      manifest_path:
+        description: "JSON 清单路径（与 selector_manifest_path 二选一）"
+        required: false
+        type: string
+      selector_manifest_path:
+        description: "Playwright 选择器清单路径（与 manifest_path 二选一）"
+        required: false
+        type: string
+      process_limit:
+        description: "本次最多处理多少个候选素材"
+        required: false
+        default: "50"
+        type: string
+
+concurrency:
+  group: wallpaper-crawler
+  cancel-in-progress: false
 
 jobs:
   crawl:
+    if: ${{ inputs.manifest_path != '' || inputs.selector_manifest_path != '' }}
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_SSL: "true"
+      DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      R2_BUCKET: ${{ secrets.R2_BUCKET }}
+      BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+      CRAWLER_ALLOWED_HOSTS: ${{ secrets.CRAWLER_ALLOWED_HOSTS }}
+      CRAWLER_USER_AGENT: ${{ secrets.CRAWLER_USER_AGENT }}
     steps:
       - uses: actions/checkout@v4
-      - name: Placeholder
-        run: echo "No crawler provider is enabled yet."
-
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Run crawler
+        shell: bash
+        run: |
+          if [[ -n "${{ inputs.manifest_path }}" && -n "${{ inputs.selector_manifest_path }}" ]]; then
+            echo "manifest_path and selector_manifest_path are mutually exclusive" >&2
+            exit 1
+          fi
+          if [[ -n "${{ inputs.manifest_path }}" ]]; then
+            pnpm crawler --manifest "${{ inputs.manifest_path }}"
+          else
+            pnpm crawler --selector-manifest "${{ inputs.selector_manifest_path }}"
+          fi
+      - name: Process queue
+        run: pnpm processor --all "${{ inputs.process_limit }}"

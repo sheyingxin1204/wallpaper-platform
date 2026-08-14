@@ -98,6 +98,15 @@ export async function getAdminWallpapers() {
   return requireDatabase().select().from(wallpapers).orderBy(asc(wallpapers.createdAt));
 }
 
+export async function getPendingProcessingIds(limit = 50) {
+  return requireDatabase()
+    .select({ id: wallpapers.id })
+    .from(wallpapers)
+    .where(eq(wallpapers.status, "pending_processing"))
+    .orderBy(asc(wallpapers.updatedAt))
+    .limit(Math.min(Math.max(limit, 1), 200));
+}
+
 export async function getAdminWallpaper(id: string) {
   const db = requireDatabase();
   const [wallpaper] = await db.select().from(wallpapers).where(eq(wallpapers.id, id)).limit(1);
