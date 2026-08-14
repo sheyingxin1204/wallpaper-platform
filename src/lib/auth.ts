@@ -2,7 +2,13 @@ import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { betterAuth } from "better-auth";
 import { db, schema } from "@/db";
 
-const secret = process.env.BETTER_AUTH_SECRET ?? "development-only-secret-change-before-deploy";
+const configuredSecret = process.env.BETTER_AUTH_SECRET?.trim();
+const developmentSecret = "local-development-secret-change-before-deploy-1234567890";
+
+// Keep local route/build checks usable without credentials, but never allow a
+// production deployment to silently run with a development secret.
+export const authConfigurationError = process.env.NODE_ENV === "production" && !configuredSecret;
+const secret = configuredSecret || developmentSecret;
 
 export const auth = betterAuth({
   secret,

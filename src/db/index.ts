@@ -6,7 +6,20 @@ import * as schema from "./schema";
 // production secrets while still producing a clear runtime error for requests.
 const databaseUrl = process.env.DATABASE_URL ?? "mysql://invalid:invalid@127.0.0.1:3306/wallpaper_platform";
 const configured = Boolean(process.env.DATABASE_URL);
-const pool = createPool({ uri: databaseUrl, connectionLimit: 5 });
+const sslCa = process.env.DATABASE_SSL_CA?.replace(/\\n/g, "\n");
+const pool = createPool({
+  uri: databaseUrl,
+  connectionLimit: 5,
+  ...(configured && process.env.DATABASE_SSL !== "false"
+    ? {
+        ssl: {
+          minVersion: "TLSv1.2",
+          rejectUnauthorized: true,
+          ...(sslCa ? { ca: sslCa } : {}),
+        },
+      }
+    : {}),
+});
 
 export const db = drizzle(pool, { schema, mode: "default" });
 

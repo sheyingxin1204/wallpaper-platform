@@ -38,7 +38,7 @@ pnpm dev
 
 ## 管理闭环初始化
 
-1. 在 `.env.local` 中填写 TiDB、R2 和 Better Auth 变量；R2 Bucket 必须保持私有。
+1. 创建一个 TiDB Cloud Starter 实例。TiDB 是兼容 MySQL 的云数据库，不需要在电脑上安装数据库服务；在控制台点击 **Connect**，允许当前公网 IP、生成并保存密码，然后复制 Node.js/MySQL 连接信息到 `.env.local` 的 `DATABASE_URL`。Starter/Essential 使用默认 `DATABASE_SSL="true"`；R2 Bucket 必须保持私有。
 2. 执行 `pnpm db:migrate` 创建表。
 3. 执行 `pnpm admin:create <email> <password>` 创建唯一的管理员账号。公开注册默认关闭。
 4. 登录 `/sign-in`，创建草稿、填写来源和授权信息并上传原图。

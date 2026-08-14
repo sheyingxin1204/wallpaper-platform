@@ -2,11 +2,12 @@ import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { isDatabaseConfigured, requireDatabase } from "@/db";
 import { users } from "@/db/schema";
-import { auth } from "@/lib/auth";
+import { auth, authConfigurationError } from "@/lib/auth";
 
 export class UnauthorizedError extends Error {}
 
 export async function requireAdmin() {
+  if (authConfigurationError) throw new UnauthorizedError("生产环境必须配置 BETTER_AUTH_SECRET。");
   // A local checkout without cloud credentials should still expose the normal
   // unauthenticated redirect instead of failing with a database connection error.
   if (!isDatabaseConfigured()) throw new UnauthorizedError("请先配置数据库并登录管理员账号。");

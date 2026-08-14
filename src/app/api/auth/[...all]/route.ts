@@ -1,4 +1,19 @@
+import { NextResponse } from "next/server";
 import { toNextJsHandler } from "better-auth/next-js";
-import { auth } from "@/lib/auth";
+import { auth, authConfigurationError } from "@/lib/auth";
 
-export const { GET, POST } = toNextJsHandler(auth);
+const handler = toNextJsHandler(auth);
+
+function unavailable() {
+  return NextResponse.json({ error: "生产环境必须配置 BETTER_AUTH_SECRET。" }, { status: 503 });
+}
+
+export async function GET(request: Request) {
+  if (authConfigurationError) return unavailable();
+  return handler.GET(request);
+}
+
+export async function POST(request: Request) {
+  if (authConfigurationError) return unavailable();
+  return handler.POST(request);
+}
