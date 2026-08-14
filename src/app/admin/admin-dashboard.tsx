@@ -235,6 +235,22 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
     }
   };
 
+  const remove = async () => {
+    if (!selected) return;
+    if (!window.confirm(`确定删除“${selected.title}”吗？该操作会同时清理 R2 对象，且无法恢复。`)) return;
+    setBusy(true);
+    try {
+      await api<void>(`/api/admin/wallpapers/${selected.id}`, { method: "DELETE" });
+      setSelected(null);
+      await refresh();
+      setMessage("壁纸已删除。");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "删除失败。");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const createCategory = async () => {
     if (!newCategoryName.trim()) return;
     setBusy(true);
@@ -348,6 +364,7 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
                     {selected.status === "pending_review" && <button type="button" disabled={busy} onClick={() => void review("published")} className="bg-lime-300 px-3 py-2 text-sm font-medium text-zinc-950">发布</button>}
                     {selected.status === "published" && <button type="button" disabled={busy} onClick={() => void review("unlisted")} className="border border-zinc-700 px-3 py-2 text-sm">下架</button>}
                     {["draft", "pending_processing", "pending_review"].includes(selected.status) && <button type="button" disabled={busy} onClick={() => void review("rejected")} className="border border-red-900 px-3 py-2 text-sm text-red-300">拒绝</button>}
+                    {!["published", "unlisted"].includes(selected.status) && <button type="button" disabled={busy} onClick={() => void remove()} className="border border-red-900 px-3 py-2 text-sm text-red-300">删除</button>}
                   </div>
                 </div>
 

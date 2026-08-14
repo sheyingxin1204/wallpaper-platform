@@ -11,6 +11,7 @@ import {
 } from "@/db/schema";
 import type { WallpaperStatus } from "@/lib/wallpapers/status";
 import { canTransition } from "@/lib/wallpapers/status";
+import { deleteR2Object } from "@/lib/storage/r2";
 import { assertCategoryExists, assertTagsExist } from "@/lib/taxonomy/service";
 
 export const requiredAssetKinds = ["original", "preview_1920", "preview_960", "thumbnail_480"] as const;
@@ -269,4 +270,25 @@ export async function markProcessingFailure(id: string, error: string) {
     toStatus: "pending_processing",
     reason: error.slice(0, 4000),
   });
+}
+
+export async function deleteWallpaper(id: string) {
+  const db = requireDatabase();
+  const [wallpaper] = await db.select().from(wallpapers).where(eq(wallpapers.id, id)).limit(1);
+  if (!wallpaper) throw new Error("壁纸不存在。");
+  if (wallpaper.status === "published" || wallpaper.status === "unlisted") {
+    throw new Error("已发布或已下架的壁纸不能删除，请保留审计记录。");
+  }
+  const assets = await db
+    .select({ storageKey: wallpaperAssets.storageKey })
+    .from(wallpaperAssets)
+    .where(eq(wallpaperAssets.wallpaperId, id));
+  await db.delete(wallpapers).where(eq(wallpapers.id, id));
+  for (const asset of assets) {
+    try {
+      await deleteR2Object(asset.storageKey);
+    } catch (error) {
+      console.warn("Failed to clean up deleted wallpaper asset", error);
+    }
+  }
 }
