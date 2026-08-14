@@ -55,6 +55,7 @@ CRAWLER_USER_AGENT       采集 User-Agent（按需）
    - `BETTER_AUTH_URL` 必须填正式域名（例如 `https://wallpaper.example.com`），`NEXT_PUBLIC_SITE_URL` 同理；认证已开启 `trustHost`，依赖正确的主机头校验会话。
 4. 运行 **Deploy** 工作流：
    - `site_url` 输入框必须填正式站点 URL（例如 `https://wallpapers.example.com`），构建时会内联进 sitemap、OpenGraph 与 robots。
+   - `contact_email` 输入框填公开页脚展示的版权/下架联系邮箱（可留空隐藏）。
    - 保持 `keep_vars` 为 true，避免覆盖已配置的变量。
 5. 执行 `pnpm admin:create <email> <password>` 创建唯一管理员账号。生产环境不应把该命令放入自动流程，建议在本机或一次性维护环境中执行。
 6. 访问正式域名验证 `/api/health`、`/robots.txt`、`/sitemap.xml` 与 `/sign-in`。

@@ -7,6 +7,10 @@ on:
         description: "正式站点 URL（例如 https://wallpapers.example.com），构建时内联到 sitemap/OpenGraph"
         required: true
         type: string
+      contact_email:
+        description: "公开页脚版权/下架联系邮箱（可留空隐藏）"
+        required: false
+        type: string
       keep_vars:
         description: "Keep Worker dashboard variables and secrets"
         required: false
@@ -31,3 +35,4 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           NEXT_PUBLIC_COMMIT_SHA: ${{ github.sha }}
           NEXT_PUBLIC_SITE_URL: ${{ inputs.site_url }}
+          NEXT_PUBLIC_CONTACT_EMAIL: ${{ inputs.contact_email }}
