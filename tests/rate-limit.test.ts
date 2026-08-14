@@ -21,3 +21,12 @@ test("rate limit windows are per client and name", () => {
   assert.equal(rateLimit(request("2.2.2.2"), name, 2, 60_000).allowed, false);
   assert.equal(rateLimit(request("3.3.3.3"), name, 2, 60_000).allowed, true);
 });
+
+test("rate limit reuses expired windows", async () => {
+  const name = `test-expiry-${Date.now()}`;
+  const key = "4.4.4.4";
+  assert.equal(rateLimit(request(key), name, 1, 50).allowed, true);
+  assert.equal(rateLimit(request(key), name, 1, 50).allowed, false);
+  await new Promise((resolve) => setTimeout(resolve, 60));
+  assert.equal(rateLimit(request(key), name, 1, 50).allowed, true);
+});

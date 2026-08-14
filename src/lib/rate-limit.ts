@@ -2,12 +2,22 @@ type Bucket = { count: number; resetAt: number };
 
 const buckets = new Map<string, Bucket>();
 
+// Workers share a single memory space; prune expired entries once the map
+// grows past a reasonable size so a burst of distinct IPs cannot leak memory.
+function pruneExpired(now: number) {
+  if (buckets.size < 2_000) return;
+  for (const [key, bucket] of buckets) {
+    if (bucket.resetAt <= now) buckets.delete(key);
+  }
+}
+
 function clientKey(request: Request) {
   return request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for")?.split(",", 1)[0]?.trim() ?? request.headers.get("x-real-ip") ?? "unknown";
 }
 
 export function rateLimit(request: Request, name: string, limit: number, windowMs: number) {
   const now = Date.now();
+  pruneExpired(now);
   const key = `${name}:${clientKey(request)}`;
   const current = buckets.get(key);
   if (!current || current.resetAt <= now) {
