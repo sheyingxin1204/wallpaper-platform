@@ -20,6 +20,7 @@ src/app/                 页面、管理后台和 API 路由
 src/db/                  Drizzle 数据库 Schema 与迁移
 src/lib/storage/         图片存储抽象接口
 scripts/crawler/         独立的 Playwright 采集器
+patches/                 对依赖的本地补丁（pnpm patchedDependencies）
 .github/workflows/       部署和采集任务工作流
 PROJECT_PLAN.md          详细实施计划
 ```
@@ -38,7 +39,7 @@ pnpm dev
 
 ## 管理闭环初始化
 
-1. 创建一个 TiDB Cloud Starter 实例。TiDB 是兼容 MySQL 的云数据库，不需要在电脑上安装数据库服务；在控制台点击 **Connect**，允许当前公网 IP、生成并保存密码，然后复制 Node.js/MySQL 连接信息到 `.env.local` 的 `DATABASE_URL`。Starter/Essential 使用默认 `DATABASE_SSL="true"`；R2 Bucket 必须保持私有。
+1. 创建一个 TiDB Cloud Starter 实例。TiDB 是兼容 MySQL 的云数据库，不需要在电脑上安装数据库服务；在控制台点击 **Connect**，生成并保存密码，然后复制连接信息到 `.env.local` 的 `DATABASE_URL`。运行时使用 TiDB Serverless 的 HTTPS 驱动，无需额外的 SSL 配置；R2 Bucket 必须保持私有。
 2. 执行 `pnpm db:migrate` 创建表。
 3. 执行 `pnpm admin:create <email> <password>` 创建唯一的管理员账号。公开注册默认关闭。
 4. 登录 `/sign-in`，创建草稿、填写来源和授权信息并上传原图。
@@ -47,6 +48,19 @@ pnpm dev
 图片处理不在 Next.js/Cloudflare Worker 请求中运行。生产环境应将 `pnpm processor` 放进受控的本机管理任务或 GitHub Actions 作业中。
 
 没有 TiDB/R2 密钥时仍可做基础路由检查：`/api/health` 应返回 `{"status":"ok"}`，未配置数据库访问 `/admin` 会重定向到 `/sign-in`。真正的登录、直传和处理链路需要先完成上面的云资源初始化。
+
+## Cloudflare 部署
+
+`pnpm cf:build` 通过 OpenNext 生成 `.open-next/` 下的 Cloudflare Worker 产物；`pnpm cf:deploy` 会构建并发布到 Cloudflare。`wrangler dev` 可本地预览 Worker，若本机 workerd 无法启动（Windows 下可能缺少 Visual C++ 运行库），以 CI 的 Linux 构建结果为准。
+
+在 GitHub 仓库的 **Settings → Secrets and variables → Actions** 中配置以下 Secrets 后，手动运行 `deploy.yml` 即可部署：
+
+```text
+CLOUDFLARE_ACCOUNT_ID
+CLOUDFLARE_API_TOKEN
+```
+
+Worker 环境变量与本地一致：`DATABASE_URL`、`R2_*`、`BETTER_AUTH_SECRET`、`BETTER_AUTH_URL`、`NEXT_PUBLIC_SITE_URL`。这些值在 Cloudflare 控制台的 Worker 设置里配置，不要提交到仓库。
 
 ## 素材与版权
 
