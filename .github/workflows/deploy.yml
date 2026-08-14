@@ -2,11 +2,28 @@ name: Deploy
 
 on:
   workflow_dispatch:
+    inputs:
+      keep_vars:
+        description: "Keep Worker dashboard variables and secrets"
+        required: false
+        default: true
+        type: boolean
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Placeholder
-        run: echo "Cloudflare deployment will be configured after the project is connected to an account."
-
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build and deploy to Cloudflare
+        run: pnpm run cf:deploy -- ${{ inputs.keep_vars == true && '--keep-vars' || '' }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

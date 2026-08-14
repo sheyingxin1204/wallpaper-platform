@@ -1,0 +1,16 @@
+diff --git a/dist/cli/build/bundle-server.js b/dist/cli/build/bundle-server.js
+index be3f893561dab6ad635e71a9cbb49603bfa44534..8db0c1265aa179f403945d35188b7e51a5dd1078 100644
+--- a/dist/cli/build/bundle-server.js
++++ b/dist/cli/build/bundle-server.js
+@@ -119,6 +119,11 @@ export async function bundleServer(buildOpts, projectOpts) {
+             // Drop it to optimize the code size
+             // See https://github.com/vercel/next.js/blob/6eb235c/packages/next/src/server/optimize-amp.ts
+             "next/dist/compiled/@ampproject/toolbox-optimizer": path.join(buildOpts.outputDir, "cloudflare-templates/shims/throw.js"),
++            // Sharp is only used by Next's request-time image optimizer. The app
++            // serves pre-optimized R2 variants with `images.unoptimized`, so the
++            // lazy `require("sharp")` is never executed and its native `.node`
++            // binaries must not be pulled into the Worker bundle.
++            "sharp": path.join(buildOpts.outputDir, "cloudflare-templates/shims/throw.js"),
+             // The edge runtime is not supported
+             "next/dist/compiled/edge-runtime": path.join(buildOpts.outputDir, "cloudflare-templates/shims/empty.js"),
+             // `@next/env` is used by Next to load environment variables from files.

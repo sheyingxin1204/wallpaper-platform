@@ -1,27 +1,13 @@
-import { drizzle } from "drizzle-orm/mysql2";
-import { createPool } from "mysql2/promise";
+import { drizzle } from "drizzle-orm/tidb-serverless";
 import * as schema from "./schema";
 
-// Creating a pool is lazy; the explicit guard below keeps builds from requiring
-// production secrets while still producing a clear runtime error for requests.
-const databaseUrl = process.env.DATABASE_URL ?? "mysql://invalid:invalid@127.0.0.1:3306/wallpaper_platform";
-const configured = Boolean(process.env.DATABASE_URL);
-const sslCa = process.env.DATABASE_SSL_CA?.replace(/\\n/g, "\n");
-const pool = createPool({
-  uri: databaseUrl,
-  connectionLimit: 5,
-  ...(configured && process.env.DATABASE_SSL !== "false"
-    ? {
-        ssl: {
-          minVersion: "TLSv1.2",
-          rejectUnauthorized: true,
-          ...(sslCa ? { ca: sslCa } : {}),
-        },
-      }
-    : {}),
-});
-
-export const db = drizzle(pool, { schema, mode: "default" });
+// TiDB Cloud's serverless driver uses HTTPS, so the same client works in
+// local Node.js processes and Cloudflare Workers without a TCP connection pool.
+// The invalid fallback keeps route/build checks importable without secrets; the
+// explicit guard below prevents any real query from using it.
+const databaseUrl = process.env.DATABASE_URL?.trim();
+const configured = Boolean(databaseUrl);
+export const db = drizzle(databaseUrl || "mysql://invalid:invalid@127.0.0.1:4000/wallpaper_platform", { schema });
 
 export function requireDatabase() {
   if (!configured) throw new Error("DATABASE_URL is required for database access.");
