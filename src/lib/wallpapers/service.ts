@@ -73,7 +73,9 @@ export async function updateDraft(id: string, actorId: string, input: DraftInput
   const db = requireDatabase();
   const [wallpaper] = await db.select().from(wallpapers).where(eq(wallpapers.id, id)).limit(1);
   if (!wallpaper) throw new Error("壁纸不存在。");
-  if (wallpaper.status !== "draft") throw new Error("只有草稿可以编辑元数据。");
+  if (wallpaper.status !== "draft" && wallpaper.status !== "pending_review" && wallpaper.status !== "published") {
+    throw new Error("当前状态不能编辑来源与授权信息。");
+  }
 
   let sourceId = wallpaper.sourceId;
   let licenseId = wallpaper.licenseId;
@@ -93,6 +95,7 @@ export async function updateDraft(id: string, actorId: string, input: DraftInput
   }
 
   const title = input.title.trim();
+  const canEditTitle = wallpaper.status === "draft";
   const categoryId = input.categoryId === undefined ? wallpaper.categoryId : input.categoryId;
   if (categoryId) await assertCategoryExists(categoryId);
   if (input.tagIds) {
@@ -104,9 +107,22 @@ export async function updateDraft(id: string, actorId: string, input: DraftInput
   }
   await db
     .update(wallpapers)
-    .set({ title, slug: slugify(title, id), description: input.description?.trim() || null, sourceId, licenseId, categoryId })
+    .set({
+      title: canEditTitle ? title : wallpaper.title,
+      slug: canEditTitle ? slugify(title, id) : wallpaper.slug,
+      description: canEditTitle ? input.description?.trim() || null : wallpaper.description,
+      sourceId,
+      licenseId,
+      categoryId: canEditTitle ? categoryId : wallpaper.categoryId,
+    })
     .where(eq(wallpapers.id, id));
-  await audit({ wallpaperId: id, actorId, action: "draft_updated", fromStatus: "draft", toStatus: "draft" });
+  await audit({
+    wallpaperId: id,
+    actorId,
+    action: wallpaper.status === "draft" ? "draft_updated" : "attribution_updated",
+    fromStatus: wallpaper.status,
+    toStatus: wallpaper.status,
+  });
 }
 
 export async function getAdminWallpapers() {

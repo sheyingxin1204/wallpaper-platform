@@ -30,7 +30,17 @@ export async function PATCH(request: Request, context: Context) {
   try {
     const admin = await requireAdmin();
     const { wallpaperId } = await context.params;
-    await updateDraft(wallpaperId, admin.id, updateSchema.parse(await request.json()));
+    const existing = await getAdminWallpaper(wallpaperId);
+    if (!existing) return NextResponse.json({ error: "壁纸不存在。" }, { status: 404 });
+    const input = updateSchema.parse(await request.json());
+    if (existing.status !== "draft") {
+      // Published and pending-review items may only correct attribution data;
+      // content edits must go through a draft/review cycle.
+      const allowed = { source: input.source, license: input.license };
+      await updateDraft(wallpaperId, admin.id, { title: existing.title, source: allowed.source, license: allowed.license });
+    } else {
+      await updateDraft(wallpaperId, admin.id, input);
+    }
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     return apiError(error);

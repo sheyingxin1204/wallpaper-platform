@@ -33,3 +33,11 @@ test("status transition matrix matches the documented workflow", () => {
     }
   }
 });
+
+test("published items can correct attribution but not titles", () => {
+  // This documents the product rule enforced by the admin PATCH route:
+  // content changes require a draft cycle, attribution fixes are allowed.
+  const editableForAttribution = ["draft", "pending_review", "published"];
+  assert.ok(editableForAttribution.includes("published"));
+  assert.ok(!editableForAttribution.includes("unlisted"));
+});

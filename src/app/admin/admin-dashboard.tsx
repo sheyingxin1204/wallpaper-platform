@@ -385,10 +385,13 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
                   </div>
                 </div>
 
-                {selected.status === "draft" && (
+                {["draft", "pending_review", "published"].includes(selected.status) && (
                   <div className="grid gap-4 border border-zinc-800 p-5">
-                    <label className="grid gap-2 text-sm">标题<input value={title} onChange={(event) => setTitle(event.target.value)} className="border border-zinc-700 bg-zinc-950 px-3 py-2" /></label>
-                    <label className="grid gap-2 text-sm">描述<textarea rows={4} value={description} onChange={(event) => setDescription(event.target.value)} className="border border-zinc-700 bg-zinc-950 px-3 py-2" /></label>
+                    {selected.status === "draft" && <>
+                      <label className="grid gap-2 text-sm">标题<input value={title} onChange={(event) => setTitle(event.target.value)} className="border border-zinc-700 bg-zinc-950 px-3 py-2" /></label>
+                      <label className="grid gap-2 text-sm">描述<textarea rows={4} value={description} onChange={(event) => setDescription(event.target.value)} className="border border-zinc-700 bg-zinc-950 px-3 py-2" /></label>
+                    </>}
+                    {selected.status !== "draft" && <p className="text-sm text-zinc-500">发布内容仅可修正来源与授权信息；标题、描述和分类修改请通过草稿流程完成。</p>}
                     <div className="grid gap-4 md:grid-cols-2">
                       <label className="grid gap-2 text-sm">来源名称<input value={sourceName} onChange={(event) => setSourceName(event.target.value)} className="border border-zinc-700 bg-zinc-950 px-3 py-2" /></label>
                       <label className="grid gap-2 text-sm">原始页面 URL<input value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} className="border border-zinc-700 bg-zinc-950 px-3 py-2" /></label>
@@ -396,14 +399,14 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
                       <label className="grid gap-2 text-sm">授权类型<input value={licenseType} onChange={(event) => setLicenseType(event.target.value)} className="border border-zinc-700 bg-zinc-950 px-3 py-2" /></label>
                       <label className="grid gap-2 text-sm">授权证据 URL<input value={licenseUrl} onChange={(event) => setLicenseUrl(event.target.value)} className="border border-zinc-700 bg-zinc-950 px-3 py-2" /></label>
                       <label className="grid gap-2 text-sm">授权备注<input value={licenseNotes} onChange={(event) => setLicenseNotes(event.target.value)} className="border border-zinc-700 bg-zinc-950 px-3 py-2" /></label>
-                      <label className="grid gap-2 text-sm">分类
-                        <select value={selectedCategoryId} onChange={(event) => setSelectedCategoryId(event.target.value)} className="border border-zinc-700 bg-zinc-950 px-3 py-2">
-                          <option value="">未分类</option>
-                          {categories.filter((category) => category.enabled).map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
-                        </select>
-                      </label>
+                      {selected.status === "draft" && <label className="grid gap-2 text-sm">分类
+                          <select value={selectedCategoryId} onChange={(event) => setSelectedCategoryId(event.target.value)} className="border border-zinc-700 bg-zinc-950 px-3 py-2">
+                            <option value="">未分类</option>
+                            {categories.filter((category) => category.enabled).map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
+                          </select>
+                        </label>}
                     </div>
-                    <fieldset className="grid gap-2 text-sm">
+                    {selected.status === "draft" && <fieldset className="grid gap-2 text-sm">
                       <legend className="text-zinc-500">标签</legend>
                       <div className="flex flex-wrap gap-2">
                         {tags.map((tag) => (
@@ -411,10 +414,10 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
                         ))}
                         {!tags.length && <span className="text-zinc-600">还没有标签，请先到“分类与标签”创建。</span>}
                       </div>
-                    </fieldset>
+                    </fieldset>}
                     <div className="flex flex-wrap gap-2">
-                      <button type="button" disabled={busy} onClick={() => void save()} className="flex items-center gap-2 border border-zinc-700 px-3 py-2 text-sm"><Save size={16} />保存</button>
-                      <label className="flex cursor-pointer items-center gap-2 bg-lime-300 px-3 py-2 text-sm font-medium text-zinc-950"><FileUp size={16} />上传原图<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={upload} /></label>
+                      <button type="button" disabled={busy} onClick={() => void save()} className="flex items-center gap-2 border border-zinc-700 px-3 py-2 text-sm"><Save size={16} />{selected.status === "draft" ? "保存" : "保存来源与授权"}</button>
+                      {selected.status === "draft" && <label className="flex cursor-pointer items-center gap-2 bg-lime-300 px-3 py-2 text-sm font-medium text-zinc-950"><FileUp size={16} />上传原图<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={upload} /></label>}
                     </div>
                   </div>
                 )}
