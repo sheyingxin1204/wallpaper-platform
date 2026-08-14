@@ -53,7 +53,9 @@ CRAWLER_USER_AGENT       采集 User-Agent（按需）
    - `DATABASE_URL`、`R2_ACCOUNT_ID`、`R2_ACCESS_KEY_ID`、`R2_SECRET_ACCESS_KEY`、`R2_BUCKET`、`BETTER_AUTH_SECRET`、`BETTER_AUTH_URL`、`NEXT_PUBLIC_SITE_URL`
    - 敏感值用 Secret 类型，非敏感值用文本变量。
    - `BETTER_AUTH_URL` 必须填正式域名（例如 `https://wallpaper.example.com`），`NEXT_PUBLIC_SITE_URL` 同理；认证已开启 `trustHost`，依赖正确的主机头校验会话。
-4. 运行 **Deploy** 工作流（保持 `keep_vars` 为 true，避免覆盖已配置的变量）。
+4. 运行 **Deploy** 工作流：
+   - `site_url` 输入框必须填正式站点 URL（例如 `https://wallpapers.example.com`），构建时会内联进 sitemap、OpenGraph 与 robots。
+   - 保持 `keep_vars` 为 true，避免覆盖已配置的变量。
 5. 执行 `pnpm admin:create <email> <password>` 创建唯一管理员账号。生产环境不应把该命令放入自动流程，建议在本机或一次性维护环境中执行。
 6. 访问正式域名验证 `/api/health`、`/robots.txt`、`/sitemap.xml` 与 `/sign-in`。
 

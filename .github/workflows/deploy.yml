@@ -3,6 +3,10 @@ name: Deploy
 on:
   workflow_dispatch:
     inputs:
+      site_url:
+        description: "正式站点 URL（例如 https://wallpapers.example.com），构建时内联到 sitemap/OpenGraph"
+        required: true
+        type: string
       keep_vars:
         description: "Keep Worker dashboard variables and secrets"
         required: false
@@ -26,3 +30,4 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           NEXT_PUBLIC_COMMIT_SHA: ${{ github.sha }}
+          NEXT_PUBLIC_SITE_URL: ${{ inputs.site_url }}
