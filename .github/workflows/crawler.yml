@@ -27,13 +27,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      DATABASE_SSL: "true"
-      DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
       R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
       R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
       R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
       R2_BUCKET: ${{ secrets.R2_BUCKET }}
-      BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
       CRAWLER_ALLOWED_HOSTS: ${{ secrets.CRAWLER_ALLOWED_HOSTS }}
       CRAWLER_USER_AGENT: ${{ secrets.CRAWLER_USER_AGENT }}
     steps:
