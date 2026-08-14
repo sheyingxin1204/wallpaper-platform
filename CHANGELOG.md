@@ -12,6 +12,7 @@
 - 图片处理：Sharp 生成原图、1920、960、480 四个 WebP 版本，记录尺寸、SHA256 与感知哈希。
 - SEO：robots、sitemap、OpenGraph、JSON-LD、404 noindex、筛选页 noindex。
 - 部署：OpenNext Cloudflare Worker、R2 私有桶 + 可选公开域名、生产迁移与备份工具、发布自检。
+- 合规：公开页页脚展示版权/下架联系渠道（`NEXT_PUBLIC_CONTACT_EMAIL` 配置）。
 
 ### 安全
 

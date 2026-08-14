@@ -19,6 +19,13 @@ test("homepage renders filters and empty state without a database", async ({ pag
   await expect(page.getByText("暂时没有符合条件的已发布壁纸")).toBeVisible();
 });
 
+test("homepage footer exposes the configured contact channel", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByText("版权与下架联系")).toBeVisible();
+  const link = page.getByRole("link", { name: "版权与下架联系" });
+  await expect(link).toHaveAttribute("href", "mailto:contact@example.com");
+});
+
 test("sign-in page exposes the email form", async ({ page }) => {
   await page.goto("/sign-in");
   await expect(page.locator('input[type="email"]')).toBeVisible();

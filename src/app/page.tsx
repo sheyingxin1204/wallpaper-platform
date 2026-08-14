@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { parseColorMode, parseResolutionPreset, resolutionPresets } from "@/lib/wallpapers/filters";
 import { getPublishedCategories, getPublishedTags, getPublishedWallpapers } from "@/lib/wallpapers/public-service";
+import { PublicFooter } from "@/components/public-footer";
 
 export const dynamic = "force-dynamic";
 
@@ -141,6 +142,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
           {result.hasNext && <Link href={`/${buildQuery({ query, orientation, category, tag, resolution: resolution?.value, color, page: page + 1 })}`} className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-300 hover:border-zinc-500">下一页</Link>}
         </nav>}
       </section>
+      <PublicFooter />
     </main>
   );
 }

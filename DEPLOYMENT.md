@@ -70,6 +70,7 @@ CRAWLER_USER_AGENT       采集 User-Agent（按需）
 - [ ] 采集任务（若有来源）能创建 `pending_review` 草稿且保留来源与授权记录。
 - [ ] 操作日志记录创建、处理、审核、下架等关键动作。
 - [ ] `pnpm backup` 能生成数据库备份和 R2 对象清单。
+- [ ] 页脚版权/下架联系渠道可见（配置 `NEXT_PUBLIC_CONTACT_EMAIL` 后公开页展示）。
 
 ## 5. 回滚与故障处理
 

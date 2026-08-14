@@ -8,6 +8,7 @@ import { rateLimit } from "@/lib/rate-limit";
 import { getSiteUrl } from "@/lib/site-url";
 import { getPublishedWallpaperBySlug, incrementWallpaperView } from "@/lib/wallpapers/public-service";
 import { WallpaperImage } from "@/components/wallpaper-image";
+import { PublicFooter } from "@/components/public-footer";
 
 export const dynamic = "force-dynamic";
 
@@ -110,6 +111,7 @@ export default async function WallpaperDetailPage({ params }: Context) {
           </div>}
         </aside>
       </div>
+      <PublicFooter />
     </main>
   );
 }

@@ -19,6 +19,7 @@ export default defineConfig({
       BETTER_AUTH_SECRET: "playwright-test-secret-0123456789abcdef",
       BETTER_AUTH_URL: "http://127.0.0.1:3100",
       NEXT_PUBLIC_SITE_URL: "http://127.0.0.1:3100",
+      NEXT_PUBLIC_CONTACT_EMAIL: "contact@example.com",
     },
   },
 });
