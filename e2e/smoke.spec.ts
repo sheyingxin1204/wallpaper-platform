@@ -58,3 +58,14 @@ test("unknown asset kinds return 404", async ({ request }) => {
   const response = await request.get("/api/wallpapers/missing/assets/not-a-kind");
   expect(response.status()).toBe(404);
 });
+
+test("sign-in rejects invalid credentials without crashing", async ({ request }) => {
+  const response = await request.post("/api/auth/sign-in/email", {
+    data: { email: "missing@example.com", password: "wrong-password" },
+  });
+  // Without a database the auth service is deliberately unavailable, so the
+  // response must be a readable 503 instead of an internal 500.
+  expect(response.status()).toBe(503);
+  const body = (await response.json()) as { error?: string };
+  expect(body.error).toContain("数据库");
+});

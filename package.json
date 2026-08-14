@@ -15,7 +15,7 @@
     "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "release:check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm cf:build && pnpm exec wrangler deploy --dry-run",
     "release:verify": "tsx --env-file-if-exists=.env.local scripts/verify-release.ts",
-    "e2e": "playwright test",
+    "e2e": "next build && playwright test",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/**/*.test.ts",
