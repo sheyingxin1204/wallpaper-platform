@@ -187,6 +187,23 @@ export async function setOriginalAsset(input: { wallpaperId: string; storageKey:
   }
 }
 
+export async function bindStagingKey(wallpaperId: string, stagingKey: string) {
+  const db = requireDatabase();
+  const [wallpaper] = await db.select().from(wallpapers).where(eq(wallpapers.id, wallpaperId)).limit(1);
+  if (!wallpaper) throw new Error("壁纸不存在。");
+  if (wallpaper.status !== "draft") throw new Error("只有草稿可以申请上传。");
+  await db.update(wallpapers).set({ stagingKey }).where(eq(wallpapers.id, wallpaperId));
+}
+
+export async function consumeStagingKey(wallpaperId: string, expectedKey: string) {
+  const db = requireDatabase();
+  const [wallpaper] = await db.select().from(wallpapers).where(eq(wallpapers.id, wallpaperId)).limit(1);
+  if (!wallpaper) throw new Error("壁纸不存在。");
+  if (wallpaper.stagingKey !== expectedKey) throw new Error("上传对象与本草稿的申请不一致，请重新上传。");
+  await db.update(wallpapers).set({ stagingKey: null }).where(eq(wallpapers.id, wallpaperId));
+  return wallpaper;
+}
+
 export async function queueProcessing(id: string, actorId: string) {
   const db = requireDatabase();
   const [wallpaper] = await db.select().from(wallpapers).where(eq(wallpapers.id, id)).limit(1);
@@ -198,7 +215,7 @@ export async function queueProcessing(id: string, actorId: string) {
     .where(and(eq(wallpaperAssets.wallpaperId, id), eq(wallpaperAssets.kind, "original")))
     .limit(1);
   if (!original) throw new Error("请先上传原图。");
-  await db.update(wallpapers).set({ status: "pending_processing", processingError: null }).where(eq(wallpapers.id, id));
+  await db.update(wallpapers).set({ status: "pending_processing", processingError: null, stagingKey: null }).where(eq(wallpapers.id, id));
   await audit({ wallpaperId: id, actorId, action: "processing_queued", fromStatus: wallpaper.status, toStatus: "pending_processing" });
   return original;
 }

@@ -185,6 +185,7 @@ export const wallpapers = mysqlTable(
       .references(() => users.id),
       publishedAt: datetime("published_at", { mode: "date" }),
       processingError: text("processing_error"),
+      stagingKey: varchar("staging_key", { length: 512 }),
       viewCount: int("view_count").notNull().default(0),
       downloadCount: int("download_count").notNull().default(0),
       createdAt: timestamp("created_at").notNull().defaultNow(),

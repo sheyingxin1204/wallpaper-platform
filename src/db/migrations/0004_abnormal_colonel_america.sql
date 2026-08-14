@@ -1,0 +1,1 @@
+ALTER TABLE `wallpapers` ADD `staging_key` varchar(512);
