@@ -149,39 +149,40 @@ export async function getPublishedWallpaperBySlug(slug: string): Promise<PublicW
 
   if (!row) return null;
 
-  const assets = await db
-    .select({ kind: wallpaperAssets.kind, width: wallpaperAssets.width, height: wallpaperAssets.height })
-    .from(wallpaperAssets)
-    .where(eq(wallpaperAssets.wallpaperId, row.id));
-  const wallpaperTagsRows = await db
-    .select({ name: tags.name, slug: tags.slug })
-    .from(wallpaperTags)
-    .innerJoin(tags, eq(wallpaperTags.tagId, tags.id))
-    .where(eq(wallpaperTags.wallpaperId, row.id));
-
   const publishedAt = row.publishedAt ?? new Date(0);
-  const [previous] = await db
-    .select({ id: wallpapers.id, slug: wallpapers.slug, title: wallpapers.title })
-    .from(wallpapers)
-    .where(
-      and(
-        eq(wallpapers.status, "published"),
-        or(lt(wallpapers.publishedAt, publishedAt), and(eq(wallpapers.publishedAt, publishedAt), lt(wallpapers.id, row.id))),
-      ),
-    )
-    .orderBy(desc(wallpapers.publishedAt), desc(wallpapers.id))
-    .limit(1);
-  const [next] = await db
-    .select({ id: wallpapers.id, slug: wallpapers.slug, title: wallpapers.title })
-    .from(wallpapers)
-    .where(
-      and(
-        eq(wallpapers.status, "published"),
-        or(gt(wallpapers.publishedAt, publishedAt), and(eq(wallpapers.publishedAt, publishedAt), gt(wallpapers.id, row.id))),
-      ),
-    )
-    .orderBy(asc(wallpapers.publishedAt), asc(wallpapers.id))
-    .limit(1);
+  const [assets, wallpaperTagsRows, [previous], [next]] = await Promise.all([
+    db
+      .select({ kind: wallpaperAssets.kind, width: wallpaperAssets.width, height: wallpaperAssets.height })
+      .from(wallpaperAssets)
+      .where(eq(wallpaperAssets.wallpaperId, row.id)),
+    db
+      .select({ name: tags.name, slug: tags.slug })
+      .from(wallpaperTags)
+      .innerJoin(tags, eq(wallpaperTags.tagId, tags.id))
+      .where(eq(wallpaperTags.wallpaperId, row.id)),
+    db
+      .select({ id: wallpapers.id, slug: wallpapers.slug, title: wallpapers.title })
+      .from(wallpapers)
+      .where(
+        and(
+          eq(wallpapers.status, "published"),
+          or(lt(wallpapers.publishedAt, publishedAt), and(eq(wallpapers.publishedAt, publishedAt), lt(wallpapers.id, row.id))),
+        ),
+      )
+      .orderBy(desc(wallpapers.publishedAt), desc(wallpapers.id))
+      .limit(1),
+    db
+      .select({ id: wallpapers.id, slug: wallpapers.slug, title: wallpapers.title })
+      .from(wallpapers)
+      .where(
+        and(
+          eq(wallpapers.status, "published"),
+          or(gt(wallpapers.publishedAt, publishedAt), and(eq(wallpapers.publishedAt, publishedAt), gt(wallpapers.id, row.id))),
+        ),
+      )
+      .orderBy(asc(wallpapers.publishedAt), asc(wallpapers.id))
+      .limit(1),
+  ]);
 
   return {
     id: row.id,
