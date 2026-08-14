@@ -13,6 +13,9 @@ const secret = configuredSecret || developmentSecret;
 export const auth = betterAuth({
   secret,
   baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+  // Trust the Host header so sessions work behind Cloudflare Workers/custom
+  // domains, not only the hardcoded baseURL.
+  trustHost: true,
   database: drizzleAdapter(db, {
     provider: "mysql",
     schema: {
