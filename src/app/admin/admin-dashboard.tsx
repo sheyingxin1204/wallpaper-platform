@@ -430,7 +430,7 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
                     {selected.assets.map((asset) => <li key={asset.id} className="flex justify-between gap-4"><span>{asset.kind}</span><span className="truncate text-xs">{asset.storageKey}</span></li>)}
                     {!selected.assets.length && <li>尚未上传原图</li>}
                   </ul>
-                  {selected.status === "pending_processing" && <button type="button" disabled={busy} onClick={() => void retryProcessing()} className="mt-4 border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:border-zinc-500">重新处理</button>}
+                  {(selected.status === "pending_processing" || selected.status === "pending_review") && <button type="button" disabled={busy} onClick={() => void retryProcessing()} className="mt-4 border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:border-zinc-500">重新处理</button>}
                 </div>
               </div>
             )}

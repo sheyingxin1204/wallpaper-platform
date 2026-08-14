@@ -208,7 +208,9 @@ export async function queueProcessing(id: string, actorId: string) {
   const db = requireDatabase();
   const [wallpaper] = await db.select().from(wallpapers).where(eq(wallpapers.id, id)).limit(1);
   if (!wallpaper) throw new Error("壁纸不存在。");
-  if (wallpaper.status !== "draft" && wallpaper.status !== "pending_processing") throw new Error("当前状态不能进入处理队列。");
+  if (wallpaper.status !== "draft" && wallpaper.status !== "pending_processing" && wallpaper.status !== "pending_review") {
+    throw new Error("当前状态不能进入处理队列。");
+  }
   const [original] = await db
     .select()
     .from(wallpaperAssets)
