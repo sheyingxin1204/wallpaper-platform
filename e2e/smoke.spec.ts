@@ -69,3 +69,15 @@ test("sign-in rejects invalid credentials without crashing", async ({ request })
   const body = (await response.json()) as { error?: string };
   expect(body.error).toContain("数据库");
 });
+
+test("homepage filters update the URL and keep showing the empty state", async ({ page }) => {
+  await page.goto("/");
+  await page.selectOption('select[name="orientation"]', "landscape");
+  await page.selectOption('select[name="resolution"]', "hd");
+  await page.selectOption('select[name="color"]', "dark");
+  await page.getByRole("button", { name: "搜索" }).click();
+  await expect(page).toHaveURL(/orientation=landscape/);
+  await expect(page).toHaveURL(/resolution=hd/);
+  await expect(page).toHaveURL(/color=dark/);
+  await expect(page.getByText("暂时没有符合条件的已发布壁纸")).toBeVisible();
+});
