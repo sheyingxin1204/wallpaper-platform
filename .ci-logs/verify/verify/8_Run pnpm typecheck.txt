@@ -1,0 +1,10 @@
+﻿2026-08-14T13:30:15.1028238Z ##[group]Run pnpm typecheck
+2026-08-14T13:30:15.1028547Z [36;1mpnpm typecheck[0m
+2026-08-14T13:30:15.1065252Z shell: /usr/bin/bash -e {0}
+2026-08-14T13:30:15.1065495Z env:
+2026-08-14T13:30:15.1065736Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-08-14T13:30:15.1066041Z ##[endgroup]
+2026-08-14T13:30:15.4998501Z 
+2026-08-14T13:30:15.4999359Z > wallpaper-platform@0.1.0 typecheck /home/runner/work/wallpaper-platform/wallpaper-platform
+2026-08-14T13:30:15.5000204Z > tsc --noEmit
+2026-08-14T13:30:15.5000587Z 

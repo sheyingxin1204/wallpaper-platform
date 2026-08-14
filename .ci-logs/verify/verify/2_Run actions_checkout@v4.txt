@@ -1,0 +1,74 @@
+﻿2026-08-14T13:29:55.7980878Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-14T13:29:55.7989599Z ##[group]Run actions/checkout@v4
+2026-08-14T13:29:55.7990610Z with:
+2026-08-14T13:29:55.7991113Z   repository: sheyingxin1204/wallpaper-platform
+2026-08-14T13:29:55.7995134Z   token: ***
+2026-08-14T13:29:55.7995546Z   ssh-strict: true
+2026-08-14T13:29:55.7995964Z   ssh-user: git
+2026-08-14T13:29:55.7996387Z   persist-credentials: true
+2026-08-14T13:29:55.7996853Z   clean: true
+2026-08-14T13:29:55.7997275Z   sparse-checkout-cone-mode: true
+2026-08-14T13:29:55.7997776Z   fetch-depth: 1
+2026-08-14T13:29:55.7998185Z   fetch-tags: false
+2026-08-14T13:29:55.7998607Z   show-progress: true
+2026-08-14T13:29:55.7999027Z   lfs: false
+2026-08-14T13:29:55.7999451Z   submodules: false
+2026-08-14T13:29:55.7999911Z   set-safe-directory: true
+2026-08-14T13:29:55.8000550Z   allow-unsafe-pr-checkout: false
+2026-08-14T13:29:55.8001354Z ##[endgroup]
+2026-08-14T13:29:55.8987196Z Syncing repository: sheyingxin1204/wallpaper-platform
+2026-08-14T13:29:55.8989145Z ##[group]Getting Git version info
+2026-08-14T13:29:55.8990185Z Working directory is '/home/runner/work/wallpaper-platform/wallpaper-platform'
+2026-08-14T13:29:55.8991608Z [command]/usr/bin/git version
+2026-08-14T13:29:55.9087924Z git version 2.54.0
+2026-08-14T13:29:55.9146070Z ##[endgroup]
+2026-08-14T13:29:55.9163371Z Temporarily overriding HOME='/home/runner/work/_temp/2709eb61-f40e-4bec-b767-68479909249b' before making global git config changes
+2026-08-14T13:29:55.9165725Z Adding repository directory to the temporary git global config as a safe directory
+2026-08-14T13:29:55.9169077Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/wallpaper-platform/wallpaper-platform
+2026-08-14T13:29:55.9234032Z Deleting the contents of '/home/runner/work/wallpaper-platform/wallpaper-platform'
+2026-08-14T13:29:55.9242273Z ##[group]Initializing the repository
+2026-08-14T13:29:55.9245493Z [command]/usr/bin/git init /home/runner/work/wallpaper-platform/wallpaper-platform
+2026-08-14T13:29:55.9424410Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-08-14T13:29:55.9425669Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-08-14T13:29:55.9426618Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-08-14T13:29:55.9427335Z hint: call:
+2026-08-14T13:29:55.9427718Z hint:
+2026-08-14T13:29:55.9428294Z hint: 	git config --global init.defaultBranch <name>
+2026-08-14T13:29:55.9429386Z hint:
+2026-08-14T13:29:55.9430606Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-08-14T13:29:55.9432190Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-08-14T13:29:55.9433474Z hint:
+2026-08-14T13:29:55.9433930Z hint: 	git branch -m <name>
+2026-08-14T13:29:55.9434749Z hint:
+2026-08-14T13:29:55.9435811Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-08-14T13:29:55.9437629Z Initialized empty Git repository in /home/runner/work/wallpaper-platform/wallpaper-platform/.git/
+2026-08-14T13:29:55.9443998Z [command]/usr/bin/git remote add origin https://github.com/sheyingxin1204/wallpaper-platform
+2026-08-14T13:29:55.9502034Z ##[endgroup]
+2026-08-14T13:29:55.9503887Z ##[group]Disabling automatic garbage collection
+2026-08-14T13:29:55.9505605Z [command]/usr/bin/git config --local gc.auto 0
+2026-08-14T13:29:55.9542766Z ##[endgroup]
+2026-08-14T13:29:55.9544100Z ##[group]Setting up auth
+2026-08-14T13:29:55.9553127Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-08-14T13:29:55.9599709Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-08-14T13:29:55.9993098Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-08-14T13:29:56.0036868Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-08-14T13:29:56.0296420Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-08-14T13:29:56.0338009Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-08-14T13:29:56.0581032Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-08-14T13:29:56.0623007Z ##[endgroup]
+2026-08-14T13:29:56.0624408Z ##[group]Fetching the repository
+2026-08-14T13:29:56.0634018Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +ee47e6e3769e7185f6565fb19294f2fad06c914b:refs/remotes/origin/main
+2026-08-14T13:29:56.3228413Z From https://github.com/sheyingxin1204/wallpaper-platform
+2026-08-14T13:29:56.3229440Z  * [new ref]         ee47e6e3769e7185f6565fb19294f2fad06c914b -> origin/main
+2026-08-14T13:29:56.3265935Z ##[endgroup]
+2026-08-14T13:29:56.3267138Z ##[group]Determining the checkout info
+2026-08-14T13:29:56.3268485Z ##[endgroup]
+2026-08-14T13:29:56.3274443Z [command]/usr/bin/git sparse-checkout disable
+2026-08-14T13:29:56.3322979Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-08-14T13:29:56.3354200Z ##[group]Checking out the ref
+2026-08-14T13:29:56.3445143Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-08-14T13:29:56.3490750Z Switched to a new branch 'main'
+2026-08-14T13:29:56.3494816Z branch 'main' set up to track 'origin/main'.
+2026-08-14T13:29:56.3502258Z ##[endgroup]
+2026-08-14T13:29:56.3551187Z [command]/usr/bin/git log -1 --format=%H
+2026-08-14T13:29:56.3579369Z ee47e6e3769e7185f6565fb19294f2fad06c914b

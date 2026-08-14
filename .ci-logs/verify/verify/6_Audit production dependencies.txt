@@ -1,0 +1,7 @@
+﻿2026-08-14T13:30:09.7321216Z ##[group]Run pnpm audit --prod
+2026-08-14T13:30:09.7321573Z [36;1mpnpm audit --prod[0m
+2026-08-14T13:30:09.7359332Z shell: /usr/bin/bash -e {0}
+2026-08-14T13:30:09.7359579Z env:
+2026-08-14T13:30:09.7359827Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-08-14T13:30:09.7360134Z ##[endgroup]
+2026-08-14T13:30:10.4122097Z No known vulnerabilities found

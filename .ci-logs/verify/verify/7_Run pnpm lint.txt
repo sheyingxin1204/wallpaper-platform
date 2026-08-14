@@ -1,0 +1,10 @@
+﻿2026-08-14T13:30:10.4226858Z ##[group]Run pnpm lint
+2026-08-14T13:30:10.4227134Z [36;1mpnpm lint[0m
+2026-08-14T13:30:10.4265296Z shell: /usr/bin/bash -e {0}
+2026-08-14T13:30:10.4265543Z env:
+2026-08-14T13:30:10.4265792Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-08-14T13:30:10.4266109Z ##[endgroup]
+2026-08-14T13:30:10.8347244Z 
+2026-08-14T13:30:10.8348216Z > wallpaper-platform@0.1.0 lint /home/runner/work/wallpaper-platform/wallpaper-platform
+2026-08-14T13:30:10.8349027Z > eslint .
+2026-08-14T13:30:10.8349152Z 

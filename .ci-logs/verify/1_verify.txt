@@ -1,0 +1,270 @@
+﻿2026-08-14T13:29:54.9658151Z Current runner version: '2.336.0'
+2026-08-14T13:29:54.9691621Z ##[group]Runner Image Provisioner
+2026-08-14T13:29:54.9692978Z Hosted Compute Agent
+2026-08-14T13:29:54.9693967Z Version: 20260729.566
+2026-08-14T13:29:54.9695034Z Commit: cf7153fe6e25b664e8693c24944bf2b00355d109
+2026-08-14T13:29:54.9696281Z Build Date: 2026-07-29T19:17:02Z
+2026-08-14T13:29:54.9697471Z Worker ID: {07740292-3f1d-4ae2-9729-ad14dca7c645}
+2026-08-14T13:29:54.9698629Z Azure Region: eastus
+2026-08-14T13:29:54.9699611Z ##[endgroup]
+2026-08-14T13:29:54.9702674Z ##[group]Operating System
+2026-08-14T13:29:54.9703668Z Ubuntu
+2026-08-14T13:29:54.9704592Z 24.04.4
+2026-08-14T13:29:54.9705371Z LTS
+2026-08-14T13:29:54.9706272Z ##[endgroup]
+2026-08-14T13:29:54.9707230Z ##[group]Runner Image
+2026-08-14T13:29:54.9708160Z Image: ubuntu-24.04
+2026-08-14T13:29:54.9709236Z Version: 20260810.271.1
+2026-08-14T13:29:54.9711555Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260810.271/images/ubuntu/Ubuntu2404-Readme.md
+2026-08-14T13:29:54.9714740Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260810.271
+2026-08-14T13:29:54.9716412Z ##[endgroup]
+2026-08-14T13:29:54.9718407Z ##[group]GITHUB_TOKEN Permissions
+2026-08-14T13:29:54.9721499Z Contents: read
+2026-08-14T13:29:54.9722487Z Metadata: read
+2026-08-14T13:29:54.9723417Z Packages: read
+2026-08-14T13:29:54.9724375Z ##[endgroup]
+2026-08-14T13:29:54.9727272Z Secret source: Actions
+2026-08-14T13:29:54.9729319Z Prepare workflow directory
+2026-08-14T13:29:55.0194587Z Prepare all required actions
+2026-08-14T13:29:55.0265155Z Getting action download info
+2026-08-14T13:29:55.2053800Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-08-14T13:29:55.3442655Z Download action repository 'pnpm/action-setup@v4' (SHA:b906affcce14559ad1aafd4ab0e942779e9f58b1)
+2026-08-14T13:29:55.5321743Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-08-14T13:29:55.7198445Z Complete job name: verify
+2026-08-14T13:29:55.7980905Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-14T13:29:55.7989619Z ##[group]Run actions/checkout@v4
+2026-08-14T13:29:55.7990624Z with:
+2026-08-14T13:29:55.7991118Z   repository: sheyingxin1204/wallpaper-platform
+2026-08-14T13:29:55.7995137Z   token: ***
+2026-08-14T13:29:55.7995550Z   ssh-strict: true
+2026-08-14T13:29:55.7995967Z   ssh-user: git
+2026-08-14T13:29:55.7996390Z   persist-credentials: true
+2026-08-14T13:29:55.7996856Z   clean: true
+2026-08-14T13:29:55.7997279Z   sparse-checkout-cone-mode: true
+2026-08-14T13:29:55.7997779Z   fetch-depth: 1
+2026-08-14T13:29:55.7998187Z   fetch-tags: false
+2026-08-14T13:29:55.7998610Z   show-progress: true
+2026-08-14T13:29:55.7999030Z   lfs: false
+2026-08-14T13:29:55.7999489Z   submodules: false
+2026-08-14T13:29:55.7999914Z   set-safe-directory: true
+2026-08-14T13:29:55.8000554Z   allow-unsafe-pr-checkout: false
+2026-08-14T13:29:55.8001365Z ##[endgroup]
+2026-08-14T13:29:55.8987245Z Syncing repository: sheyingxin1204/wallpaper-platform
+2026-08-14T13:29:55.8989160Z ##[group]Getting Git version info
+2026-08-14T13:29:55.8990193Z Working directory is '/home/runner/work/wallpaper-platform/wallpaper-platform'
+2026-08-14T13:29:55.8991615Z [command]/usr/bin/git version
+2026-08-14T13:29:55.9087958Z git version 2.54.0
+2026-08-14T13:29:55.9146117Z ##[endgroup]
+2026-08-14T13:29:55.9163395Z Temporarily overriding HOME='/home/runner/work/_temp/2709eb61-f40e-4bec-b767-68479909249b' before making global git config changes
+2026-08-14T13:29:55.9165745Z Adding repository directory to the temporary git global config as a safe directory
+2026-08-14T13:29:55.9169091Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/wallpaper-platform/wallpaper-platform
+2026-08-14T13:29:55.9234085Z Deleting the contents of '/home/runner/work/wallpaper-platform/wallpaper-platform'
+2026-08-14T13:29:55.9242297Z ##[group]Initializing the repository
+2026-08-14T13:29:55.9245518Z [command]/usr/bin/git init /home/runner/work/wallpaper-platform/wallpaper-platform
+2026-08-14T13:29:55.9424476Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-08-14T13:29:55.9425674Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-08-14T13:29:55.9426622Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-08-14T13:29:55.9427338Z hint: call:
+2026-08-14T13:29:55.9427721Z hint:
+2026-08-14T13:29:55.9428303Z hint: 	git config --global init.defaultBranch <name>
+2026-08-14T13:29:55.9429405Z hint:
+2026-08-14T13:29:55.9430625Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-08-14T13:29:55.9432208Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-08-14T13:29:55.9433505Z hint:
+2026-08-14T13:29:55.9433934Z hint: 	git branch -m <name>
+2026-08-14T13:29:55.9434764Z hint:
+2026-08-14T13:29:55.9435824Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-08-14T13:29:55.9437640Z Initialized empty Git repository in /home/runner/work/wallpaper-platform/wallpaper-platform/.git/
+2026-08-14T13:29:55.9444022Z [command]/usr/bin/git remote add origin https://github.com/sheyingxin1204/wallpaper-platform
+2026-08-14T13:29:55.9502063Z ##[endgroup]
+2026-08-14T13:29:55.9503922Z ##[group]Disabling automatic garbage collection
+2026-08-14T13:29:55.9505629Z [command]/usr/bin/git config --local gc.auto 0
+2026-08-14T13:29:55.9542787Z ##[endgroup]
+2026-08-14T13:29:55.9544108Z ##[group]Setting up auth
+2026-08-14T13:29:55.9553147Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-08-14T13:29:55.9600084Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-08-14T13:29:55.9993180Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-08-14T13:29:56.0036931Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-08-14T13:29:56.0296513Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-08-14T13:29:56.0338061Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-08-14T13:29:56.0581083Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-08-14T13:29:56.0623044Z ##[endgroup]
+2026-08-14T13:29:56.0624428Z ##[group]Fetching the repository
+2026-08-14T13:29:56.0634107Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +ee47e6e3769e7185f6565fb19294f2fad06c914b:refs/remotes/origin/main
+2026-08-14T13:29:56.3228479Z From https://github.com/sheyingxin1204/wallpaper-platform
+2026-08-14T13:29:56.3229445Z  * [new ref]         ee47e6e3769e7185f6565fb19294f2fad06c914b -> origin/main
+2026-08-14T13:29:56.3265959Z ##[endgroup]
+2026-08-14T13:29:56.3267145Z ##[group]Determining the checkout info
+2026-08-14T13:29:56.3268491Z ##[endgroup]
+2026-08-14T13:29:56.3274466Z [command]/usr/bin/git sparse-checkout disable
+2026-08-14T13:29:56.3323004Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-08-14T13:29:56.3354223Z ##[group]Checking out the ref
+2026-08-14T13:29:56.3445185Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-08-14T13:29:56.3490784Z Switched to a new branch 'main'
+2026-08-14T13:29:56.3494850Z branch 'main' set up to track 'origin/main'.
+2026-08-14T13:29:56.3502282Z ##[endgroup]
+2026-08-14T13:29:56.3551242Z [command]/usr/bin/git log -1 --format=%H
+2026-08-14T13:29:56.3579406Z ee47e6e3769e7185f6565fb19294f2fad06c914b
+2026-08-14T13:29:56.3885944Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-14T13:29:56.3891769Z ##[group]Run pnpm/action-setup@v4
+2026-08-14T13:29:56.3892497Z with:
+2026-08-14T13:29:56.3892937Z   dest: ~/setup-pnpm
+2026-08-14T13:29:56.3893493Z   run_install: null
+2026-08-14T13:29:56.3894015Z   cache: false
+2026-08-14T13:29:56.3894574Z   cache_dependency_path: pnpm-lock.yaml
+2026-08-14T13:29:56.3895406Z   package_json_file: package.json
+2026-08-14T13:29:56.3896126Z   standalone: false
+2026-08-14T13:29:56.3896652Z ##[endgroup]
+2026-08-14T13:29:56.5389018Z ##[group]Running self-installer...
+2026-08-14T13:29:56.9519789Z (node:2208) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-08-14T13:29:56.9523494Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-08-14T13:29:57.0815504Z Progress: resolved 1, reused 0, downloaded 0, added 0
+2026-08-14T13:29:57.0909234Z Packages: +1
+2026-08-14T13:29:57.0910956Z +
+2026-08-14T13:29:57.5119576Z Progress: resolved 1, reused 0, downloaded 1, added 1, done
+2026-08-14T13:29:57.5365580Z 
+2026-08-14T13:29:57.5366036Z dependencies:
+2026-08-14T13:29:57.5366602Z + pnpm 10.0.0 (11.21.0 is available)
+2026-08-14T13:29:57.5373600Z 
+2026-08-14T13:29:57.5395665Z Done in 810ms
+2026-08-14T13:29:57.5573029Z ##[endgroup]
+2026-08-14T13:29:57.5573606Z Installation Completed!
+2026-08-14T13:29:57.5775324Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-14T13:29:57.5776646Z ##[group]Run actions/setup-node@v4
+2026-08-14T13:29:57.5776922Z with:
+2026-08-14T13:29:57.5777118Z   node-version: 20
+2026-08-14T13:29:57.5777322Z   cache: pnpm
+2026-08-14T13:29:57.5777514Z   always-auth: false
+2026-08-14T13:29:57.5777727Z   check-latest: false
+2026-08-14T13:29:57.5780617Z   token: ***
+2026-08-14T13:29:57.5780825Z env:
+2026-08-14T13:29:57.5781087Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-08-14T13:29:57.5781405Z ##[endgroup]
+2026-08-14T13:29:57.7151693Z Attempting to download 20...
+2026-08-14T13:29:57.7257008Z (node:2222) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-08-14T13:29:57.7258334Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-08-14T13:29:58.1643553Z Acquiring 20.20.2 - x64 from https://github.com/actions/node-versions/releases/download/20.20.2-23521894959/node-20.20.2-linux-x64.tar.gz
+2026-08-14T13:29:58.4694906Z Extracting ...
+2026-08-14T13:29:58.4857878Z [command]/usr/bin/tar xz --strip 1 --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/b9882e1a-d04f-4661-bd7d-40bf4c0cd56f -f /home/runner/work/_temp/d85edee4-8abc-4a22-a141-ed67b41be1f9
+2026-08-14T13:29:59.5291550Z Adding to the cache ...
+2026-08-14T13:30:01.2943351Z ##[group]Environment details
+2026-08-14T13:30:01.5125198Z node: v20.20.2
+2026-08-14T13:30:01.5125611Z npm: 10.8.2
+2026-08-14T13:30:01.5126062Z yarn: 1.22.22
+2026-08-14T13:30:01.5126676Z ##[endgroup]
+2026-08-14T13:30:01.5149737Z [command]/home/runner/setup-pnpm/node_modules/.bin/pnpm store path --silent
+2026-08-14T13:30:01.8914081Z /home/runner/setup-pnpm/node_modules/.bin/store/v10
+2026-08-14T13:30:01.9783200Z pnpm cache is not found
+2026-08-14T13:30:01.9954617Z ##[group]Run pnpm install --frozen-lockfile
+2026-08-14T13:30:01.9955237Z [36;1mpnpm install --frozen-lockfile[0m
+2026-08-14T13:30:01.9996093Z shell: /usr/bin/bash -e {0}
+2026-08-14T13:30:01.9996362Z env:
+2026-08-14T13:30:01.9996622Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-08-14T13:30:01.9996936Z ##[endgroup]
+2026-08-14T13:30:02.5036406Z Lockfile is up to date, resolution step is skipped
+2026-08-14T13:30:02.5911970Z Progress: resolved 1, reused 0, downloaded 0, added 0
+2026-08-14T13:30:02.7013714Z Packages: +675
+2026-08-14T13:30:02.7014653Z ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+2026-08-14T13:30:03.5942109Z Progress: resolved 675, reused 0, downloaded 45, added 35
+2026-08-14T13:30:04.5931548Z Progress: resolved 675, reused 0, downloaded 136, added 124
+2026-08-14T13:30:05.5932677Z Progress: resolved 675, reused 0, downloaded 216, added 213
+2026-08-14T13:30:06.5952316Z Progress: resolved 675, reused 0, downloaded 357, added 347
+2026-08-14T13:30:07.5971500Z Progress: resolved 675, reused 0, downloaded 421, added 407
+2026-08-14T13:30:08.5942146Z Progress: resolved 675, reused 0, downloaded 654, added 642
+2026-08-14T13:30:08.8563207Z Progress: resolved 675, reused 0, downloaded 675, added 675, done
+2026-08-14T13:30:09.6441890Z 
+2026-08-14T13:30:09.6442452Z dependencies:
+2026-08-14T13:30:09.6442935Z + @aws-sdk/client-s3 3.1086.0
+2026-08-14T13:30:09.6443542Z + @aws-sdk/s3-request-presigner 3.1086.0
+2026-08-14T13:30:09.6444131Z + @better-auth/drizzle-adapter 1.6.25
+2026-08-14T13:30:09.6444629Z + @tidbcloud/serverless 0.3.0
+2026-08-14T13:30:09.6445064Z + better-auth 1.6.25
+2026-08-14T13:30:09.6445470Z + drizzle-orm 0.45.2
+2026-08-14T13:30:09.6445876Z + lucide-react 0.511.0
+2026-08-14T13:30:09.6446327Z + next 16.3.1
+2026-08-14T13:30:09.6446695Z + next-themes 0.4.6
+2026-08-14T13:30:09.6447040Z + react 19.2.7
+2026-08-14T13:30:09.6447383Z + react-dom 19.2.7
+2026-08-14T13:30:09.6447717Z + zod 4.4.3
+2026-08-14T13:30:09.6447893Z 
+2026-08-14T13:30:09.6448091Z devDependencies:
+2026-08-14T13:30:09.6448609Z + @opennextjs/cloudflare 1.20.2
+2026-08-14T13:30:09.6449134Z + @playwright/test 1.62.1
+2026-08-14T13:30:09.6449601Z + @tailwindcss/postcss 4.3.2
+2026-08-14T13:30:09.6450068Z + @types/node 22.20.1
+2026-08-14T13:30:09.6450841Z + @types/react 19.2.17
+2026-08-14T13:30:09.6451366Z + @types/react-dom 19.2.3
+2026-08-14T13:30:09.6451797Z + drizzle-kit 0.31.10
+2026-08-14T13:30:09.6452195Z + eslint 9.39.5
+2026-08-14T13:30:09.6452703Z + eslint-config-next 16.2.10
+2026-08-14T13:30:09.6453200Z + playwright 1.62.1
+2026-08-14T13:30:09.6453609Z + sharp 0.34.5
+2026-08-14T13:30:09.6454015Z + tailwindcss 4.3.2
+2026-08-14T13:30:09.6454413Z + tsx 4.23.1
+2026-08-14T13:30:09.6454807Z + typescript 5.9.3
+2026-08-14T13:30:09.6455219Z + wrangler 4.122.0
+2026-08-14T13:30:09.6455518Z 
+2026-08-14T13:30:09.6456572Z The following dependencies have build scripts that were ignored: @opennextjs/cloudflare, esbuild, sharp, unrs-resolver, workerd
+2026-08-14T13:30:09.6458782Z To allow the execution of build scripts for these packages, add their names to "pnpm.onlyBuiltDependencies" in your "package.json", then run "pnpm rebuild"
+2026-08-14T13:30:09.6459844Z 
+2026-08-14T13:30:09.6751450Z Done in 7.6s
+2026-08-14T13:30:09.7321231Z ##[group]Run pnpm audit --prod
+2026-08-14T13:30:09.7321576Z [36;1mpnpm audit --prod[0m
+2026-08-14T13:30:09.7359339Z shell: /usr/bin/bash -e {0}
+2026-08-14T13:30:09.7359582Z env:
+2026-08-14T13:30:09.7359830Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-08-14T13:30:09.7360136Z ##[endgroup]
+2026-08-14T13:30:10.4122125Z No known vulnerabilities found
+2026-08-14T13:30:10.4226867Z ##[group]Run pnpm lint
+2026-08-14T13:30:10.4227138Z [36;1mpnpm lint[0m
+2026-08-14T13:30:10.4265303Z shell: /usr/bin/bash -e {0}
+2026-08-14T13:30:10.4265545Z env:
+2026-08-14T13:30:10.4265795Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-08-14T13:30:10.4266111Z ##[endgroup]
+2026-08-14T13:30:10.8347288Z 
+2026-08-14T13:30:10.8348222Z > wallpaper-platform@0.1.0 lint /home/runner/work/wallpaper-platform/wallpaper-platform
+2026-08-14T13:30:10.8349031Z > eslint .
+2026-08-14T13:30:10.8349156Z 
+2026-08-14T13:30:15.1028251Z ##[group]Run pnpm typecheck
+2026-08-14T13:30:15.1028550Z [36;1mpnpm typecheck[0m
+2026-08-14T13:30:15.1065258Z shell: /usr/bin/bash -e {0}
+2026-08-14T13:30:15.1065497Z env:
+2026-08-14T13:30:15.1065739Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-08-14T13:30:15.1066043Z ##[endgroup]
+2026-08-14T13:30:15.4998527Z 
+2026-08-14T13:30:15.4999364Z > wallpaper-platform@0.1.0 typecheck /home/runner/work/wallpaper-platform/wallpaper-platform
+2026-08-14T13:30:15.5000208Z > tsc --noEmit
+2026-08-14T13:30:15.5000591Z 
+2026-08-14T13:30:21.6815435Z ##[group]Run pnpm test
+2026-08-14T13:30:21.6815900Z [36;1mpnpm test[0m
+2026-08-14T13:30:21.6869017Z shell: /usr/bin/bash -e {0}
+2026-08-14T13:30:21.6869449Z env:
+2026-08-14T13:30:21.6869886Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-08-14T13:30:21.6870736Z ##[endgroup]
+2026-08-14T13:30:22.0887239Z 
+2026-08-14T13:30:22.0888155Z > wallpaper-platform@0.1.0 test /home/runner/work/wallpaper-platform/wallpaper-platform
+2026-08-14T13:30:22.0888746Z > tsx --test tests/**/*.test.ts
+2026-08-14T13:30:22.0888925Z 
+2026-08-14T13:30:22.1938521Z Could not find '/home/runner/work/wallpaper-platform/wallpaper-platform/tests/**/*.test.ts'
+2026-08-14T13:30:22.2013491Z  ELIFECYCLE  Test failed. See above for more details.
+2026-08-14T13:30:22.2205960Z ##[error]Process completed with exit code 1.
+2026-08-14T13:30:22.2309471Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-14T13:30:22.2311009Z Post job cleanup.
+2026-08-14T13:30:22.3745292Z Pruning is unnecessary.
+2026-08-14T13:30:22.3896281Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-14T13:30:22.3897540Z Post job cleanup.
+2026-08-14T13:30:22.4753949Z [command]/usr/bin/git version
+2026-08-14T13:30:22.4797816Z git version 2.54.0
+2026-08-14T13:30:22.4841672Z Temporarily overriding HOME='/home/runner/work/_temp/6d999f27-f218-4e63-88c5-a67ca348648b' before making global git config changes
+2026-08-14T13:30:22.4843164Z Adding repository directory to the temporary git global config as a safe directory
+2026-08-14T13:30:22.4847747Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/wallpaper-platform/wallpaper-platform
+2026-08-14T13:30:22.4885624Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-08-14T13:30:22.4920463Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-08-14T13:30:22.5222532Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-08-14T13:30:22.5281264Z http.https://github.com/.extraheader
+2026-08-14T13:30:22.5294268Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-08-14T13:30:22.5328660Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-08-14T13:30:22.5639240Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-08-14T13:30:22.5687922Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-08-14T13:30:22.6099640Z Cleaning up orphan processes
+2026-08-14T13:30:22.6379642Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, pnpm/action-setup@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

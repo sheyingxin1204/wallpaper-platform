@@ -1,0 +1,26 @@
+﻿2026-08-14T13:29:58.9926870Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-14T13:29:58.9932273Z ##[group]Run actions/setup-node@v4
+2026-08-14T13:29:58.9933302Z with:
+2026-08-14T13:29:58.9934053Z   node-version: 20
+2026-08-14T13:29:58.9935046Z   cache: pnpm
+2026-08-14T13:29:58.9935821Z   always-auth: false
+2026-08-14T13:29:58.9936664Z   check-latest: false
+2026-08-14T13:29:58.9946174Z   token: ***
+2026-08-14T13:29:58.9946953Z env:
+2026-08-14T13:29:58.9947881Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-08-14T13:29:58.9949140Z ##[endgroup]
+2026-08-14T13:29:59.1387146Z Attempting to download 20...
+2026-08-14T13:29:59.1494146Z (node:2281) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-08-14T13:29:59.1499427Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-08-14T13:30:00.1745870Z Acquiring 20.20.2 - x64 from https://github.com/actions/node-versions/releases/download/20.20.2-23521894959/node-20.20.2-linux-x64.tar.gz
+2026-08-14T13:30:00.8749688Z Extracting ...
+2026-08-14T13:30:00.8877756Z [command]/usr/bin/tar xz --strip 1 --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/b852b124-e91e-4bbf-9802-7854c3f5f552 -f /home/runner/work/_temp/21080b89-cb75-469f-be38-302ade5001a6
+2026-08-14T13:30:01.8754910Z Adding to the cache ...
+2026-08-14T13:30:03.7499344Z ##[group]Environment details
+2026-08-14T13:30:03.9846403Z node: v20.20.2
+2026-08-14T13:30:03.9847169Z npm: 10.8.2
+2026-08-14T13:30:03.9847618Z yarn: 1.22.22
+2026-08-14T13:30:03.9848603Z ##[endgroup]
+2026-08-14T13:30:03.9872717Z [command]/home/runner/setup-pnpm/node_modules/.bin/pnpm store path --silent
+2026-08-14T13:30:04.3687474Z /home/runner/setup-pnpm/node_modules/.bin/store/v10
+2026-08-14T13:30:04.6103321Z pnpm cache is not found

@@ -1,0 +1,13 @@
+﻿2026-08-14T13:30:21.6815419Z ##[group]Run pnpm test
+2026-08-14T13:30:21.6815895Z [36;1mpnpm test[0m
+2026-08-14T13:30:21.6869007Z shell: /usr/bin/bash -e {0}
+2026-08-14T13:30:21.6869444Z env:
+2026-08-14T13:30:21.6869880Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-08-14T13:30:21.6870729Z ##[endgroup]
+2026-08-14T13:30:22.0887195Z 
+2026-08-14T13:30:22.0888150Z > wallpaper-platform@0.1.0 test /home/runner/work/wallpaper-platform/wallpaper-platform
+2026-08-14T13:30:22.0888740Z > tsx --test tests/**/*.test.ts
+2026-08-14T13:30:22.0888923Z 
+2026-08-14T13:30:22.1938485Z Could not find '/home/runner/work/wallpaper-platform/wallpaper-platform/tests/**/*.test.ts'
+2026-08-14T13:30:22.2013475Z  ELIFECYCLE  Test failed. See above for more details.
+2026-08-14T13:30:22.2205947Z ##[error]Process completed with exit code 1.
