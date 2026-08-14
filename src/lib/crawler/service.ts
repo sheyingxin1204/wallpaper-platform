@@ -88,11 +88,17 @@ export async function listCrawlTasks(limit = 50) {
     .limit(Math.min(Math.max(limit, 1), 200));
 }
 
-export async function listCrawlRecords(taskId: string, limit = 200) {
-  return requireDatabase()
+export async function listCrawlRecords(taskId: string, page = 1, pageSize = 200) {
+  const db = requireDatabase();
+  const safePage = Math.max(page, 1);
+  const safeSize = Math.min(Math.max(pageSize, 1), 500);
+  const rows = await db
     .select()
     .from(crawlRecords)
     .where(eq(crawlRecords.taskId, taskId))
     .orderBy(desc(crawlRecords.createdAt))
-    .limit(Math.min(Math.max(limit, 1), 500));
+    .limit(safeSize + 1)
+    .offset((safePage - 1) * safeSize);
+  const hasNext = rows.length > safeSize;
+  return { records: rows.slice(0, safeSize), hasNext };
 }

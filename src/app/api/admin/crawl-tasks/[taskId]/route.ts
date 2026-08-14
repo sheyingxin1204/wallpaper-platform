@@ -5,11 +5,14 @@ import { listCrawlRecords } from "@/lib/crawler/service";
 
 type Context = { params: Promise<{ taskId: string }> };
 
-export async function GET(_: Request, context: Context) {
+export async function GET(request: Request, context: Context) {
   try {
     await requireAdmin();
     const { taskId } = await context.params;
-    return NextResponse.json({ records: await listCrawlRecords(taskId) });
+    const url = new URL(request.url);
+    const page = Number.parseInt(url.searchParams.get("page") ?? "1", 10);
+    const result = await listCrawlRecords(taskId, Number.isFinite(page) ? page : 1);
+    return NextResponse.json({ records: result.records, hasNext: result.hasNext, page: Math.max(page || 1, 1) });
   } catch (error) {
     return apiError(error);
   }

@@ -51,6 +51,8 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
   const [crawlTasks, setCrawlTasks] = useState<CrawlTask[]>([]);
   const [selectedTaskId, setSelectedTaskId] = useState("");
   const [crawlRecords, setCrawlRecords] = useState<CrawlRecord[]>([]);
+  const [crawlRecordsPage, setCrawlRecordsPage] = useState(1);
+  const [crawlRecordsHasNext, setCrawlRecordsHasNext] = useState(false);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -119,11 +121,26 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
   const selectTask = async (id: string) => {
     setSelectedTaskId(id);
     try {
-      const data = await api<{ records: CrawlRecord[] }>(`/api/admin/crawl-tasks/${id}`);
+      const data = await api<{ records: CrawlRecord[]; hasNext: boolean }>(`/api/admin/crawl-tasks/${id}?page=1`);
       setCrawlRecords(data.records);
+      setCrawlRecordsPage(1);
+      setCrawlRecordsHasNext(data.hasNext);
       setMessage("");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "无法读取采集记录。");
+    }
+  };
+
+  const loadMoreRecords = async () => {
+    if (!selectedTaskId) return;
+    try {
+      const next = crawlRecordsPage + 1;
+      const data = await api<{ records: CrawlRecord[]; hasNext: boolean }>(`/api/admin/crawl-tasks/${selectedTaskId}?page=${next}`);
+      setCrawlRecords((current) => [...current, ...data.records]);
+      setCrawlRecordsPage(next);
+      setCrawlRecordsHasNext(data.hasNext);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "无法加载更多采集记录。");
     }
   };
 
@@ -555,6 +572,7 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
                   </article>
                 ))}
                 {!crawlRecords.length && <p className="border border-dashed border-zinc-700 p-10 text-center text-sm text-zinc-500">该任务还没有采集记录。</p>}
+                {crawlRecordsHasNext && <button type="button" onClick={() => void loadMoreRecords()} className="mt-3 w-full border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:border-zinc-500">加载更多记录</button>}
               </div>
             )}
           </section>
