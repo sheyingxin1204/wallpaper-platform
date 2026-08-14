@@ -125,10 +125,6 @@ export async function updateDraft(id: string, actorId: string, input: DraftInput
   });
 }
 
-export async function getAdminWallpapers() {
-  return requireDatabase().select().from(wallpapers).orderBy(desc(wallpapers.createdAt));
-}
-
 export async function getAdminWallpapersPage(page: number, pageSize = 50) {
   const db = requireDatabase();
   const safePage = Math.max(page, 1);
