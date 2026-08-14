@@ -25,7 +25,12 @@ export async function GET(request: Request, context: Context) {
     // short-lived presigned URLs; only derived variants may use a public domain.
     const publicUrl = download || kind === "original" ? null : publicAssetUrl(asset.storageKey);
     if (publicUrl) return NextResponse.redirect(publicUrl);
-    if (download) void incrementWallpaperDownload(wallpaperId).catch(() => {});
+    // Only original downloads count towards download stats, and only once per
+    // client within the rolling window so refresh spam cannot inflate numbers.
+    if (kind === "original" && download) {
+      const downloadLimit = rateLimit(request, `wallpaper-download:${wallpaperId}`, 3, 10 * 60_000);
+      if (downloadLimit.allowed) void incrementWallpaperDownload(wallpaperId).catch(() => {});
+    }
     const url = await createR2DownloadUrl({
       key: asset.storageKey,
       expiresInSeconds: 10 * 60,

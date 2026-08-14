@@ -61,6 +61,11 @@ test("unknown asset kinds return 404", async ({ request }) => {
   expect(response.status()).toBe(404);
 });
 
+test("downloads of unpublished assets return 404", async ({ request }) => {
+  const response = await request.get("/api/wallpapers/missing/assets/original?download=1");
+  expect(response.status()).toBe(404);
+});
+
 test("sign-in rejects invalid credentials without crashing", async ({ request }) => {
   const response = await request.post("/api/auth/sign-in/email", {
     data: { email: "missing@example.com", password: "wrong-password" },
