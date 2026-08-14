@@ -1,16 +1,33 @@
 import { randomUUID } from "node:crypto";
+import { createHash } from "node:crypto";
 import { desc, eq, sql } from "drizzle-orm";
 import { requireDatabase } from "@/db";
 import { crawlRecords, crawlTasks } from "@/db/schema";
 import type { CrawlCandidate } from "@/lib/crawler/types";
 
-export async function createCrawlTask(input: { provider: string; version: string; rawInput?: string }) {
+export function computeTaskInputHash(rawInput: string) {
+  return createHash("sha256").update(rawInput).digest("hex");
+}
+
+export async function createCrawlTask(input: { provider: string; version: string; rawInput?: string; inputHash?: string }) {
+  // If a previous run with the same manifest is still marked as running, it
+  // likely crashed mid-way (the workflow concurrency guard prevents parallel
+  // runs). Reuse that task so a retry does not duplicate records.
+  if (input.inputHash) {
+    const [existing] = await requireDatabase()
+      .select({ id: crawlTasks.id })
+      .from(crawlTasks)
+      .where(sql`${crawlTasks.inputHash} = ${input.inputHash} AND ${crawlTasks.status} = 'running'`)
+      .limit(1);
+    if (existing) return existing.id;
+  }
   const id = randomUUID();
   await requireDatabase().insert(crawlTasks).values({
     id,
     provider: input.provider,
     providerVersion: input.version,
     input: input.rawInput,
+    inputHash: input.inputHash,
     startedAt: new Date(),
   });
   return id;

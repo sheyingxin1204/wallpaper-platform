@@ -128,9 +128,10 @@ export const crawlTasks = mysqlTable(
   {
     id: varchar("id", { length: 36 }).primaryKey(),
     provider: varchar("provider", { length: 120 }).notNull(),
-    providerVersion: varchar("provider_version", { length: 40 }).notNull(),
-    input: longtext("input"),
-    status: mysqlEnum("status", crawlTaskStatuses).notNull().default("running"),
+      providerVersion: varchar("provider_version", { length: 40 }).notNull(),
+      input: longtext("input"),
+      inputHash: char("input_hash", { length: 64 }),
+      status: mysqlEnum("status", crawlTaskStatuses).notNull().default("running"),
     candidateCount: int("candidate_count").notNull().default(0),
     importedCount: int("imported_count").notNull().default(0),
     duplicateCount: int("duplicate_count").notNull().default(0),
@@ -139,7 +140,11 @@ export const crawlTasks = mysqlTable(
     finishedAt: datetime("finished_at", { mode: "date" }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
-  (table) => [index("crawl_tasks_status_index").on(table.status), index("crawl_tasks_provider_index").on(table.provider)],
+  (table) => [
+    uniqueIndex("crawl_tasks_input_hash_unique").on(table.inputHash),
+    index("crawl_tasks_status_index").on(table.status),
+    index("crawl_tasks_provider_index").on(table.provider),
+  ],
 );
 
 export const sources = mysqlTable(

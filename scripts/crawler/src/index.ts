@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { computeTaskInputHash } from "@/lib/crawler/service";
 import { createCrawlTask, finishCrawlTask } from "@/lib/crawler/service";
 import { importCrawlCandidates } from "@/lib/crawler/ingest";
 import { collectWithPlaywright } from "@/lib/crawler/playwright-provider";
@@ -45,7 +46,8 @@ async function main() {
   }
 
   const candidates = directData?.items ?? await collectWithPlaywright(selectorData!);
-  const taskId = await createCrawlTask({ provider, version, rawInput });
+  const inputHash = computeTaskInputHash(rawInput);
+  const taskId = await createCrawlTask({ provider, version, rawInput, inputHash });
   try {
     const result = await importCrawlCandidates(taskId, candidates);
     await finishCrawlTask({ id: taskId, candidateCount: candidates.length, ...result });
