@@ -41,6 +41,7 @@ export async function getPublishedWallpapers(input: {
   minWidth?: number;
   minHeight?: number;
   colorMode?: "dark" | "light";
+  tag?: string;
   page?: number;
   pageSize?: number;
 }) {
@@ -59,6 +60,11 @@ export async function getPublishedWallpapers(input: {
     }
     if (input.colorMode === "dark") conditions.push(lt(luminanceSql, 0.35));
     if (input.colorMode === "light") conditions.push(gte(luminanceSql, 0.35));
+    if (input.tag) {
+      conditions.push(
+        sql`EXISTS (SELECT 1 FROM ${wallpaperTags} JOIN ${tags} ON ${tags.id} = ${wallpaperTags.tagId} WHERE ${wallpaperTags.wallpaperId} = ${wallpapers.id} AND ${tags.slug} = ${input.tag})`,
+      );
+    }
 
     const rows = await db
       .select({
@@ -121,6 +127,17 @@ export async function getPublishedCategories() {
       .orderBy(asc(categories.sortOrder), asc(categories.name));
   } catch (error) {
     console.error("Failed to load published categories", error);
+    return [] as Array<{ name: string; slug: string }>;
+  }
+}
+
+export async function getPublishedTags() {
+  if (!isDatabaseConfigured()) return [] as Array<{ name: string; slug: string }>;
+  try {
+    const db = requireDatabase();
+    return db.select({ name: tags.name, slug: tags.slug }).from(tags).orderBy(asc(tags.name));
+  } catch (error) {
+    console.error("Failed to load published tags", error);
     return [] as Array<{ name: string; slug: string }>;
   }
 }

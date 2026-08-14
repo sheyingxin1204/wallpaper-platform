@@ -13,6 +13,7 @@ test("homepage renders filters and empty state without a database", async ({ pag
   await expect(page.getByRole("heading", { name: "最新发布" })).toBeVisible();
   await expect(page.locator('select[name="orientation"]')).toBeVisible();
   await expect(page.locator('select[name="category"]')).toBeVisible();
+  await expect(page.locator('select[name="tag"]')).toBeVisible();
   await expect(page.locator('select[name="resolution"]')).toBeVisible();
   await expect(page.locator('select[name="color"]')).toBeVisible();
   await expect(page.getByText("暂时没有符合条件的已发布壁纸")).toBeVisible();
