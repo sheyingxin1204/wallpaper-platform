@@ -83,3 +83,11 @@ test("homepage filters update the URL and keep showing the empty state", async (
   await expect(page).toHaveURL(/color=dark/);
   await expect(page.getByText("暂时没有符合条件的已发布壁纸")).toBeVisible();
 });
+
+test("filtered homepages are excluded from search indexes", async ({ request }) => {
+  const plain = await request.get("/");
+  expect(await plain.text()).not.toContain('name="robots"');
+
+  const filtered = await request.get("/?orientation=landscape");
+  expect(await filtered.text()).toContain('name="robots" content="noindex');
+});

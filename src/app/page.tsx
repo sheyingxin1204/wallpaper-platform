@@ -1,11 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { parseColorMode, parseResolutionPreset, resolutionPresets } from "@/lib/wallpapers/filters";
 import { getPublishedCategories, getPublishedWallpapers } from "@/lib/wallpapers/public-service";
 
 export const dynamic = "force-dynamic";
-
-type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -21,6 +20,16 @@ function buildQuery(input: { query?: string; orientation?: string; category?: st
   if (input.page && input.page > 1) params.set("page", String(input.page));
   const query = params.toString();
   return query ? `?${query}` : "";
+}
+
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+// Search, filter and pagination views are low-value duplicates of the same
+// content; keeping them out of the index avoids thin/duplicate pages.
+export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
+  const params = await searchParams;
+  const filtered = Object.entries(params).some(([key, value]) => key !== "page" && Boolean(value)) || Number.parseInt(first(params.page) ?? "1", 10) > 1;
+  return filtered ? { robots: { index: false, follow: true } } : {};
 }
 
 export default async function HomePage({ searchParams }: { searchParams: SearchParams }) {
