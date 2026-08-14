@@ -1,7 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { asc, eq, inArray } from "drizzle-orm";
 import { requireDatabase } from "@/db";
+import { ConflictError } from "@/lib/errors";
 import { categories, tags } from "@/db/schema";
+
+function isDuplicateKeyError(error: unknown) {
+  return error instanceof Error && /(duplicate|ER_DUP_ENTRY|1062)/i.test(error.message);
+}
 
 export async function listCategories() {
   return requireDatabase()
@@ -11,18 +16,28 @@ export async function listCategories() {
 }
 
 export async function createCategory(input: { name: string; slug: string; sortOrder?: number; enabled?: boolean }) {
-  await requireDatabase().insert(categories).values({
-    id: randomUUID(),
-    name: input.name,
-    slug: input.slug,
-    sortOrder: input.sortOrder ?? 0,
-    enabled: input.enabled ?? true,
-  });
+  try {
+    await requireDatabase().insert(categories).values({
+      id: randomUUID(),
+      name: input.name,
+      slug: input.slug,
+      sortOrder: input.sortOrder ?? 0,
+      enabled: input.enabled ?? true,
+    });
+  } catch (error) {
+    if (isDuplicateKeyError(error)) throw new ConflictError(`分类 slug “${input.slug}” 已存在。`);
+    throw error;
+  }
 }
 
 export async function updateCategory(id: string, input: { name?: string; slug?: string; sortOrder?: number; enabled?: boolean }) {
-  const result = await requireDatabase().update(categories).set(input).where(eq(categories.id, id));
-  if (result.rowsAffected === 0) throw new Error("分类不存在。");
+  try {
+    const result = await requireDatabase().update(categories).set(input).where(eq(categories.id, id));
+    if (result.rowsAffected === 0) throw new Error("分类不存在。");
+  } catch (error) {
+    if (isDuplicateKeyError(error)) throw new ConflictError(`分类 slug “${input.slug ?? ""}” 已存在。`);
+    throw error;
+  }
 }
 
 export async function listTags() {
@@ -30,12 +45,22 @@ export async function listTags() {
 }
 
 export async function createTag(input: { name: string; slug: string }) {
-  await requireDatabase().insert(tags).values({ id: randomUUID(), ...input });
+  try {
+    await requireDatabase().insert(tags).values({ id: randomUUID(), ...input });
+  } catch (error) {
+    if (isDuplicateKeyError(error)) throw new ConflictError(`标签 slug “${input.slug}” 已存在。`);
+    throw error;
+  }
 }
 
 export async function updateTag(id: string, input: { name?: string; slug?: string }) {
-  const result = await requireDatabase().update(tags).set(input).where(eq(tags.id, id));
-  if (result.rowsAffected === 0) throw new Error("标签不存在。");
+  try {
+    const result = await requireDatabase().update(tags).set(input).where(eq(tags.id, id));
+    if (result.rowsAffected === 0) throw new Error("标签不存在。");
+  } catch (error) {
+    if (isDuplicateKeyError(error)) throw new ConflictError(`标签 slug “${input.slug ?? ""}” 已存在。`);
+    throw error;
+  }
 }
 
 export async function assertTagsExist(tagIds: string[]) {

@@ -7,3 +7,12 @@ export class InfrastructureError extends Error {
     this.name = "InfrastructureError";
   }
 }
+
+// A database uniqueness conflict (e.g. duplicate slug) is the client's
+// responsibility to resolve, so it must surface as 409, not 500.
+export class ConflictError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ConflictError";
+  }
+}
