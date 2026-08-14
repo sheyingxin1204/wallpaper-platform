@@ -3,7 +3,9 @@ import { expect, test } from "@playwright/test";
 test("health endpoint reports ok", async ({ request }) => {
   const response = await request.get("/api/health");
   expect(response.status()).toBe(200);
-  expect(await response.json()).toEqual({ status: "ok" });
+  const body = (await response.json()) as { status: string; version: string };
+  expect(body.status).toBe("ok");
+  expect(body.version).toBeTruthy();
 });
 
 test("homepage renders filters and empty state without a database", async ({ page }) => {
