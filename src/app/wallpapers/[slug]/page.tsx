@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Context): Promise<Metadata> {
       title: wallpaper.title,
       description: wallpaper.description ?? undefined,
       type: "article",
-      images: [{ url: `/api/wallpapers/${wallpaper.id}/assets/preview_1920`, alt: wallpaper.title }],
+      images: [{ url: `${getSiteUrl().toString().replace(/\/$/, "")}/api/wallpapers/${wallpaper.id}/assets/preview_1920`, alt: wallpaper.title }],
     },
   };
 }
