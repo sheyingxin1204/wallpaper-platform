@@ -21,7 +21,9 @@ export async function GET(request: Request, context: Context) {
 
   try {
     const download = new URL(request.url).searchParams.get("download") === "1";
-    const publicUrl = download ? null : publicAssetUrl(asset.storageKey);
+    // Originals live under the private `staging/` prefix and must always use
+    // short-lived presigned URLs; only derived variants may use a public domain.
+    const publicUrl = download || kind === "original" ? null : publicAssetUrl(asset.storageKey);
     if (publicUrl) return NextResponse.redirect(publicUrl);
     if (download) void incrementWallpaperDownload(wallpaperId).catch(() => {});
     const url = await createR2DownloadUrl({
