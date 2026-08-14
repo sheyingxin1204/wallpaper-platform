@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
-import { FileUp, FolderTree, LogOut, Plus, RefreshCw, Save, Tags } from "lucide-react";
+import { FileUp, FolderTree, History, LogOut, Plus, RefreshCw, Save, Tags } from "lucide-react";
 
 type Status = "draft" | "pending_processing" | "pending_review" | "published" | "unlisted" | "rejected";
 type Wallpaper = { id: string; title: string; status: Status; processingError: string | null };
@@ -15,9 +15,13 @@ type Detail = Wallpaper & {
 };
 type Category = { id: string; name: string; slug: string; sortOrder: number; enabled: boolean };
 type Tag = { id: string; name: string; slug: string };
-type View = "wallpapers" | "taxonomy";
+type CrawlTask = { id: string; provider: string; providerVersion: string; input: string | null; status: "running" | "completed" | "failed"; candidateCount: number; importedCount: number; duplicateCount: number; error: string | null; startedAt: string; finishedAt: string | null };
+type CrawlRecord = { id: string; pageUrl: string; imageUrl: string; title: string; author: string | null; licenseType: string; status: "queued" | "imported" | "duplicate" | "failed"; wallpaperId: string | null; error: string | null; capturedAt: string };
+type View = "wallpapers" | "taxonomy" | "crawl";
 
 const labels: Record<Status, string> = { draft: "草稿", pending_processing: "处理中", pending_review: "待审核", published: "已发布", unlisted: "已下架", rejected: "已拒绝" };
+const crawlTaskLabels: Record<CrawlTask["status"], string> = { running: "运行中", completed: "已完成", failed: "失败" };
+const crawlRecordLabels: Record<CrawlRecord["status"], string> = { queued: "排队中", imported: "已导入", duplicate: "重复", failed: "失败" };
 
 async function api<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, { ...init, headers: { "Content-Type": "application/json", ...init?.headers } });
@@ -41,6 +45,9 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
   const [selected, setSelected] = useState<Detail | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
+  const [crawlTasks, setCrawlTasks] = useState<CrawlTask[]>([]);
+  const [selectedTaskId, setSelectedTaskId] = useState("");
+  const [crawlRecords, setCrawlRecords] = useState<CrawlRecord[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [sourceName, setSourceName] = useState("");
@@ -82,6 +89,26 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
     }
   }, []);
 
+  const loadCrawlTasks = useCallback(async () => {
+    try {
+      const data = await api<{ tasks: CrawlTask[] }>("/api/admin/crawl-tasks");
+      setCrawlTasks(data.tasks);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "无法加载采集任务。");
+    }
+  }, []);
+
+  const selectTask = async (id: string) => {
+    setSelectedTaskId(id);
+    try {
+      const data = await api<{ records: CrawlRecord[] }>(`/api/admin/crawl-tasks/${id}`);
+      setCrawlRecords(data.records);
+      setMessage("");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "无法读取采集记录。");
+    }
+  };
+
   useEffect(() => {
     const timer = window.setTimeout(() => void refresh(), 0);
     return () => window.clearTimeout(timer);
@@ -91,6 +118,11 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
     const timer = window.setTimeout(() => void loadTaxonomy(), 0);
     return () => window.clearTimeout(timer);
   }, [loadTaxonomy]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => void loadCrawlTasks(), 0);
+    return () => window.clearTimeout(timer);
+  }, [loadCrawlTasks]);
 
   const select = async (id: string) => {
     try {
@@ -278,6 +310,7 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
         <nav className="mx-auto flex max-w-7xl gap-1 px-6 pb-3" aria-label="后台导航">
           <button type="button" onClick={() => setView("wallpapers")} className={`flex items-center gap-2 border px-4 py-2 text-sm ${view === "wallpapers" ? "border-lime-300 text-lime-300" : "border-transparent text-zinc-400 hover:text-white"}`}><FileUp size={15} />壁纸</button>
           <button type="button" onClick={() => setView("taxonomy")} className={`flex items-center gap-2 border px-4 py-2 text-sm ${view === "taxonomy" ? "border-lime-300 text-lime-300" : "border-transparent text-zinc-400 hover:text-white"}`}><Tags size={15} />分类与标签</button>
+          <button type="button" onClick={() => setView("crawl")} className={`flex items-center gap-2 border px-4 py-2 text-sm ${view === "crawl" ? "border-lime-300 text-lime-300" : "border-transparent text-zinc-400 hover:text-white"}`}><History size={15} />采集记录</button>
         </nav>
       </header>
 
@@ -366,7 +399,7 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
             )}
           </section>
         </div>
-      ) : (
+      ) : view === "taxonomy" ? (
         <div className="mx-auto grid max-w-7xl gap-6 px-6 py-6 lg:grid-cols-2">
           <section className="border border-zinc-800 p-5">
             <h2 className="flex items-center gap-2 text-base font-medium"><FolderTree size={16} />分类</h2>
@@ -397,6 +430,51 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
               ))}
               {!tags.length && <p className="py-6 text-center text-sm text-zinc-500">暂无标签</p>}
             </ul>
+          </section>
+        </div>
+      ) : (
+        <div className="mx-auto grid max-w-7xl gap-6 px-6 py-6 lg:grid-cols-[300px_1fr]">
+          <aside className="border border-zinc-800 bg-zinc-900/50 p-3">
+            <p className="px-1 pb-2 text-sm font-medium">采集任务</p>
+            <div className="space-y-1">
+              {crawlTasks.map((task) => (
+                <button key={task.id} type="button" onClick={() => void selectTask(task.id)} className={`w-full border px-3 py-3 text-left ${selectedTaskId === task.id ? "border-lime-300 bg-zinc-800" : "border-transparent hover:bg-zinc-800"}`}>
+                  <span className="flex items-center justify-between gap-2 text-sm">
+                    <span className="truncate">{task.provider}</span>
+                    <span className={`shrink-0 text-xs ${task.status === "failed" ? "text-red-400" : task.status === "running" ? "text-lime-300" : "text-zinc-500"}`}>{crawlTaskLabels[task.status]}</span>
+                  </span>
+                  <span className="mt-1 block text-xs text-zinc-500">候选 {task.candidateCount} · 导入 {task.importedCount} · 重复 {task.duplicateCount}</span>
+                  <span className="mt-1 block text-xs text-zinc-600">{new Date(task.startedAt).toLocaleString()}</span>
+                </button>
+              ))}
+              {!crawlTasks.length && <p className="py-8 text-center text-sm text-zinc-500">暂无采集任务</p>}
+            </div>
+          </aside>
+
+          <section className="min-w-0">
+            {!selectedTaskId ? (
+              <div className="border border-dashed border-zinc-700 p-10 text-sm text-zinc-500">选择一个采集任务查看记录。</div>
+            ) : (
+              <div className="space-y-3">
+                {crawlTasks.find((task) => task.id === selectedTaskId)?.error && <p className="border border-red-900 p-3 text-sm text-red-300">任务错误：{crawlTasks.find((task) => task.id === selectedTaskId)?.error}</p>}
+                {crawlRecords.map((record) => (
+                  <article key={record.id} className="border border-zinc-800 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <h3 className="min-w-0 truncate text-sm font-medium">{record.title}</h3>
+                      <span className={`shrink-0 text-xs ${record.status === "failed" ? "text-red-400" : record.status === "imported" ? "text-lime-300" : "text-zinc-500"}`}>{crawlRecordLabels[record.status]}</span>
+                    </div>
+                    <dl className="mt-2 grid gap-1 text-xs text-zinc-500">
+                      <div className="min-w-0 truncate"><dt className="inline">来源：</dt><dd className="inline"><a href={record.pageUrl} target="_blank" rel="noreferrer" className="text-zinc-300 underline underline-offset-2">{record.pageUrl}</a></dd></div>
+                      <div className="min-w-0 truncate"><dt className="inline">图片：</dt><dd className="inline">{record.imageUrl}</dd></div>
+                      <div><dt className="inline">授权：</dt><dd className="inline">{record.licenseType}</dd></div>
+                      {record.wallpaperId && <div className="min-w-0 truncate"><dt className="inline">关联草稿：</dt><dd className="inline">{record.wallpaperId}</dd></div>}
+                      {record.error && <div className="text-red-400"><dt className="inline">错误：</dt><dd className="inline">{record.error}</dd></div>}
+                    </dl>
+                  </article>
+                ))}
+                {!crawlRecords.length && <p className="border border-dashed border-zinc-700 p-10 text-center text-sm text-zinc-500">该任务还没有采集记录。</p>}
+              </div>
+            )}
           </section>
         </div>
       )}

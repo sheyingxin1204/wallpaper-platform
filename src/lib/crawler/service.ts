@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { eq, sql } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { requireDatabase } from "@/db";
 import { crawlRecords, crawlTasks } from "@/db/schema";
 import type { CrawlCandidate } from "@/lib/crawler/types";
@@ -61,4 +61,21 @@ export async function finishCrawlTask(input: { id: string; candidateCount: numbe
 
 export async function incrementCrawlTaskCandidateCount(taskId: string) {
   await requireDatabase().update(crawlTasks).set({ candidateCount: sql`${crawlTasks.candidateCount} + 1` }).where(eq(crawlTasks.id, taskId));
+}
+
+export async function listCrawlTasks(limit = 50) {
+  return requireDatabase()
+    .select()
+    .from(crawlTasks)
+    .orderBy(desc(crawlTasks.startedAt))
+    .limit(Math.min(Math.max(limit, 1), 200));
+}
+
+export async function listCrawlRecords(taskId: string, limit = 200) {
+  return requireDatabase()
+    .select()
+    .from(crawlRecords)
+    .where(eq(crawlRecords.taskId, taskId))
+    .orderBy(desc(crawlRecords.createdAt))
+    .limit(Math.min(Math.max(limit, 1), 500));
 }
