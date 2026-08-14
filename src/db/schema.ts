@@ -183,9 +183,11 @@ export const wallpapers = mysqlTable(
     createdBy: varchar("created_by", { length: 36 })
       .notNull()
       .references(() => users.id),
-    publishedAt: datetime("published_at", { mode: "date" }),
-    processingError: text("processing_error"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+      publishedAt: datetime("published_at", { mode: "date" }),
+      processingError: text("processing_error"),
+      viewCount: int("view_count").notNull().default(0),
+      downloadCount: int("download_count").notNull().default(0),
+      createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
   },
   (table) => [

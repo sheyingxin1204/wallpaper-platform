@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { getPublishedWallpaperBySlug } from "@/lib/wallpapers/public-service";
+import { rateLimit } from "@/lib/rate-limit";
+import { getPublishedWallpaperBySlug, incrementWallpaperView } from "@/lib/wallpapers/public-service";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +31,10 @@ export default async function WallpaperDetailPage({ params }: Context) {
   const wallpaper = await getPublishedWallpaperBySlug(slug);
   if (!wallpaper) notFound();
 
+  // Deduplicate view counts per client within a 10-minute window.
+  const limit = rateLimit(new Request("https://wallpaper.local/", { headers: await headers() }), `wallpaper-view:${wallpaper.id}`, 6, 600_000);
+  if (limit.allowed) void incrementWallpaperView(wallpaper.id).catch(() => {});
+
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-100">
       <header className="border-b border-zinc-800/80">
@@ -54,6 +60,8 @@ export default async function WallpaperDetailPage({ params }: Context) {
             <div className="flex justify-between gap-4"><dt className="text-zinc-500">尺寸</dt><dd>{wallpaper.width && wallpaper.height ? `${wallpaper.width} × ${wallpaper.height}` : "未知"}</dd></div>
             <div className="flex justify-between gap-4"><dt className="text-zinc-500">方向</dt><dd>{wallpaper.orientation === "landscape" ? "横屏" : wallpaper.orientation === "portrait" ? "竖屏" : wallpaper.orientation === "square" ? "方形" : "未知"}</dd></div>
             <div className="flex justify-between gap-4"><dt className="text-zinc-500">分类</dt><dd>{wallpaper.category?.name ?? "未分类"}</dd></div>
+            <div className="flex justify-between gap-4"><dt className="text-zinc-500">浏览量</dt><dd>{wallpaper.viewCount}</dd></div>
+            <div className="flex justify-between gap-4"><dt className="text-zinc-500">下载量</dt><dd>{wallpaper.downloadCount}</dd></div>
             {wallpaper.tags.length > 0 && (
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <dt className="text-zinc-500">标签</dt>
@@ -70,6 +78,11 @@ export default async function WallpaperDetailPage({ params }: Context) {
             <a href={`/api/wallpapers/${wallpaper.id}/assets/original?download=1`} className="rounded-lg bg-lime-300 px-5 py-3 text-center text-sm font-medium text-zinc-950 transition hover:bg-lime-200">下载原图</a>
             <a href={`/api/wallpapers/${wallpaper.id}/assets/preview_1920?download=1`} className="rounded-lg border border-zinc-700 px-5 py-3 text-center text-sm text-zinc-200 transition hover:border-zinc-500">下载 1920 预览图</a>
           </div>
+
+          {(wallpaper.previous || wallpaper.next) && <nav className="mt-8 grid gap-3 border-t border-zinc-800 pt-6 text-sm" aria-label="壁纸导航">
+            {wallpaper.previous && <Link href={`/wallpapers/${wallpaper.previous.slug}`} className="flex items-center justify-between gap-3 border border-zinc-800 p-3 transition hover:border-zinc-600"><span className="truncate text-zinc-500">← {wallpaper.previous.title}</span><span className="shrink-0 text-zinc-400">上一张</span></Link>}
+            {wallpaper.next && <Link href={`/wallpapers/${wallpaper.next.slug}`} className="flex items-center justify-between gap-3 border border-zinc-800 p-3 transition hover:border-zinc-600"><span className="shrink-0 text-zinc-400">下一张</span><span className="truncate text-right text-zinc-500">{wallpaper.next.title} →</span></Link>}
+          </nav>}
 
           {(wallpaper.source || wallpaper.license) && <div className="mt-8 border-t border-zinc-800 pt-6 text-sm text-zinc-500">
             <p className="font-medium text-zinc-300">来源与授权</p>

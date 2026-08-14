@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, like } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, like, lt, or, sql } from "drizzle-orm";
 import { isDatabaseConfigured, requireDatabase } from "@/db";
 import { assetKinds, categories, licenses, sources, tags, wallpaperAssets, wallpaperTags, wallpapers } from "@/db/schema";
 
@@ -19,6 +19,10 @@ export type PublicWallpaperCard = {
 
 export type PublicWallpaperDetail = PublicWallpaperCard & {
   publishedAt: Date | null;
+  viewCount: number;
+  downloadCount: number;
+  previous: { id: string; slug: string; title: string } | null;
+  next: { id: string; slug: string; title: string } | null;
   source: { name: string; originalUrl: string; author: string | null } | null;
   license: { type: string; evidenceUrl: string | null; notes: string | null } | null;
   tags: Array<{ name: string; slug: string }>;
@@ -115,6 +119,8 @@ export async function getPublishedWallpaperBySlug(slug: string): Promise<PublicW
       height: wallpapers.height,
       dominantColor: wallpapers.dominantColor,
       publishedAt: wallpapers.publishedAt,
+      viewCount: wallpapers.viewCount,
+      downloadCount: wallpapers.downloadCount,
       categoryName: categories.name,
       categorySlug: categories.slug,
       sourceName: sources.name,
@@ -143,6 +149,30 @@ export async function getPublishedWallpaperBySlug(slug: string): Promise<PublicW
     .innerJoin(tags, eq(wallpaperTags.tagId, tags.id))
     .where(eq(wallpaperTags.wallpaperId, row.id));
 
+  const publishedAt = row.publishedAt ?? new Date(0);
+  const [previous] = await db
+    .select({ id: wallpapers.id, slug: wallpapers.slug, title: wallpapers.title })
+    .from(wallpapers)
+    .where(
+      and(
+        eq(wallpapers.status, "published"),
+        or(lt(wallpapers.publishedAt, publishedAt), and(eq(wallpapers.publishedAt, publishedAt), lt(wallpapers.id, row.id))),
+      ),
+    )
+    .orderBy(desc(wallpapers.publishedAt), desc(wallpapers.id))
+    .limit(1);
+  const [next] = await db
+    .select({ id: wallpapers.id, slug: wallpapers.slug, title: wallpapers.title })
+    .from(wallpapers)
+    .where(
+      and(
+        eq(wallpapers.status, "published"),
+        or(gt(wallpapers.publishedAt, publishedAt), and(eq(wallpapers.publishedAt, publishedAt), gt(wallpapers.id, row.id))),
+      ),
+    )
+    .orderBy(asc(wallpapers.publishedAt), asc(wallpapers.id))
+    .limit(1);
+
   return {
     id: row.id,
     slug: row.slug,
@@ -153,6 +183,10 @@ export async function getPublishedWallpaperBySlug(slug: string): Promise<PublicW
     height: row.height,
     dominantColor: row.dominantColor,
     publishedAt: row.publishedAt,
+    viewCount: row.viewCount,
+    downloadCount: row.downloadCount,
+    previous: previous ?? null,
+    next: next ?? null,
     category: row.categoryName && row.categorySlug ? { name: row.categoryName, slug: row.categorySlug } : null,
     assets,
     source: row.sourceName && row.sourceUrl ? { name: row.sourceName, originalUrl: row.sourceUrl, author: row.sourceAuthor } : null,
@@ -161,6 +195,22 @@ export async function getPublishedWallpaperBySlug(slug: string): Promise<PublicW
       : null,
     tags: wallpaperTagsRows,
   };
+}
+
+export async function incrementWallpaperView(id: string) {
+  if (!isDatabaseConfigured()) return;
+  await requireDatabase()
+    .update(wallpapers)
+    .set({ viewCount: sql`${wallpapers.viewCount} + 1` })
+    .where(eq(wallpapers.id, id));
+}
+
+export async function incrementWallpaperDownload(id: string) {
+  if (!isDatabaseConfigured()) return;
+  await requireDatabase()
+    .update(wallpapers)
+    .set({ downloadCount: sql`${wallpapers.downloadCount} + 1` })
+    .where(eq(wallpapers.id, id));
 }
 
 export async function getPublishedAsset(wallpaperId: string, kind: PublicAssetKind) {
