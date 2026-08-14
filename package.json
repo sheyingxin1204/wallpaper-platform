@@ -58,6 +58,10 @@
     "wrangler": "4.122.0"
   },
   "pnpm": {
+    "overrides": {
+      "esbuild": "0.25.12",
+      "nanoid@>=3.0.0 <4.0.0": "3.3.18"
+    },
     "patchedDependencies": {
       "@opennextjs/cloudflare": "patches/@opennextjs__cloudflare.patch"
     }
