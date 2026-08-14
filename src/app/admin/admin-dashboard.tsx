@@ -338,6 +338,34 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
     }
   };
 
+  const removeCategory = async (category: Category) => {
+    if (!window.confirm(`确定删除分类“${category.name}”吗？已关联壁纸会变为未分类。`)) return;
+    setBusy(true);
+    try {
+      await api<void>(`/api/admin/categories/${category.id}`, { method: "DELETE" });
+      if (selected?.categoryId === category.id) setSelectedCategoryId("");
+      await loadTaxonomy();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "删除分类失败。");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const removeTag = async (tag: Tag) => {
+    if (!window.confirm(`确定删除标签“${tag.name}”吗？关联关系会一并移除。`)) return;
+    setBusy(true);
+    try {
+      await api<void>(`/api/admin/tags/${tag.id}`, { method: "DELETE" });
+      setSelectedTagIds((current) => current.filter((id) => id !== tag.id));
+      await loadTaxonomy();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "删除标签失败。");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const toggleTag = (id: string) => {
     setSelectedTagIds((current) => (current.includes(id) ? current.filter((tagId) => tagId !== id) : [...current, id]));
   };
@@ -465,7 +493,7 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
             </div>
             <ul className="mt-4 space-y-2">
               {categories.map((category) => (
-                <CategoryRow key={category.id} category={category} busy={busy} onSave={(patch) => void saveCategory(category, patch)} />
+                <CategoryRow key={category.id} category={category} busy={busy} onSave={(patch) => void saveCategory(category, patch)} onDelete={() => void removeCategory(category)} />
               ))}
               {!categories.length && <p className="py-6 text-center text-sm text-zinc-500">暂无分类</p>}
             </ul>
@@ -480,7 +508,7 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
             </div>
             <ul className="mt-4 space-y-2">
               {tags.map((tag) => (
-                <TagRow key={tag.id} tag={tag} busy={busy} onSave={(patch) => void saveTag(tag, patch)} />
+                <TagRow key={tag.id} tag={tag} busy={busy} onSave={(patch) => void saveTag(tag, patch)} onDelete={() => void removeTag(tag)} />
               ))}
               {!tags.length && <p className="py-6 text-center text-sm text-zinc-500">暂无标签</p>}
             </ul>
@@ -556,32 +584,34 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
   );
 }
 
-function CategoryRow({ category, busy, onSave }: { category: Category; busy: boolean; onSave: (patch: Partial<Category>) => void }) {
+function CategoryRow({ category, busy, onSave, onDelete }: { category: Category; busy: boolean; onSave: (patch: Partial<Category>) => void; onDelete: () => void }) {
   const [name, setName] = useState(category.name);
   const [slug, setSlug] = useState(category.slug);
   const [sortOrder, setSortOrder] = useState(String(category.sortOrder));
   const [enabled, setEnabled] = useState(category.enabled);
 
   return (
-    <li className="grid items-center gap-2 border border-zinc-800 p-3 md:grid-cols-[1fr_1fr_72px_80px_auto]">
+    <li className="grid items-center gap-2 border border-zinc-800 p-3 md:grid-cols-[1fr_1fr_72px_80px_auto_auto]">
       <input value={name} onChange={(event) => setName(event.target.value)} className="min-w-0 border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm" />
       <input value={slug} onChange={(event) => setSlug(event.target.value)} className="min-w-0 border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm" />
       <input value={sortOrder} onChange={(event) => setSortOrder(event.target.value)} className="min-w-0 border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm" />
       <label className="flex items-center gap-2 text-xs text-zinc-500"><input type="checkbox" checked={enabled} onChange={(event) => setEnabled(event.target.checked)} />启用</label>
       <button type="button" disabled={busy} onClick={() => onSave({ name: name.trim(), slug: slug.trim(), sortOrder: Number.parseInt(sortOrder, 10) || 0, enabled })} className="border border-zinc-700 px-3 py-1 text-xs text-zinc-300 hover:border-zinc-500">保存</button>
+      <button type="button" disabled={busy} onClick={onDelete} className="border border-red-900 px-3 py-1 text-xs text-red-300 hover:border-red-700">删除</button>
     </li>
   );
 }
 
-function TagRow({ tag, busy, onSave }: { tag: Tag; busy: boolean; onSave: (patch: Partial<Tag>) => void }) {
+function TagRow({ tag, busy, onSave, onDelete }: { tag: Tag; busy: boolean; onSave: (patch: Partial<Tag>) => void; onDelete: () => void }) {
   const [name, setName] = useState(tag.name);
   const [slug, setSlug] = useState(tag.slug);
 
   return (
-    <li className="grid items-center gap-2 border border-zinc-800 p-3 md:grid-cols-[1fr_1fr_auto]">
+    <li className="grid items-center gap-2 border border-zinc-800 p-3 md:grid-cols-[1fr_1fr_auto_auto]">
       <input value={name} onChange={(event) => setName(event.target.value)} className="min-w-0 border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm" />
       <input value={slug} onChange={(event) => setSlug(event.target.value)} className="min-w-0 border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm" />
       <button type="button" disabled={busy} onClick={() => onSave({ name: name.trim(), slug: slug.trim() })} className="border border-zinc-700 px-3 py-1 text-xs text-zinc-300 hover:border-zinc-500">保存</button>
+      <button type="button" disabled={busy} onClick={onDelete} className="border border-red-900 px-3 py-1 text-xs text-red-300 hover:border-red-700">删除</button>
     </li>
   );
 }

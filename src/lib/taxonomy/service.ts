@@ -63,6 +63,16 @@ export async function updateTag(id: string, input: { name?: string; slug?: strin
   }
 }
 
+export async function deleteCategory(id: string) {
+  const result = await requireDatabase().delete(categories).where(eq(categories.id, id));
+  if (result.rowsAffected === 0) throw new Error("分类不存在。");
+}
+
+export async function deleteTag(id: string) {
+  const result = await requireDatabase().delete(tags).where(eq(tags.id, id));
+  if (result.rowsAffected === 0) throw new Error("标签不存在。");
+}
+
 export async function assertTagsExist(tagIds: string[]) {
   if (!tagIds.length) return;
   const rows = await requireDatabase()
