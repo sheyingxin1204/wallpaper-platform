@@ -53,6 +53,23 @@ export async function readR2Object(key: string): Promise<Buffer> {
   return Buffer.from(await response.Body.transformToByteArray());
 }
 
+export async function createR2DownloadUrl(input: {
+  key: string;
+  expiresInSeconds: number;
+  contentType?: string;
+  downloadFilename?: string;
+}) {
+  const command = new GetObjectCommand({
+    Bucket: bucket(),
+    Key: input.key,
+    ...(input.contentType ? { ResponseContentType: input.contentType } : {}),
+    ...(input.downloadFilename
+      ? { ResponseContentDisposition: `attachment; filename*=UTF-8''${encodeURIComponent(input.downloadFilename)}` }
+      : {}),
+  });
+  return getSignedUrl(client(), command, { expiresIn: input.expiresInSeconds });
+}
+
 export async function writeR2Object(input: { key: string; body: Buffer; contentType: string }) {
   await client().send(
     new PutObjectCommand({ Bucket: bucket(), Key: input.key, Body: input.body, ContentType: input.contentType }),
