@@ -1,6 +1,17 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { canTransition } from "@/lib/wallpapers/status";
+import { canTransition, type WallpaperStatus } from "@/lib/wallpapers/status";
+
+const statuses: WallpaperStatus[] = ["draft", "pending_processing", "pending_review", "published", "unlisted", "rejected"];
+
+const allowedTransitions: Record<WallpaperStatus, WallpaperStatus[]> = {
+  draft: ["pending_processing", "rejected"],
+  pending_processing: ["pending_processing", "pending_review", "rejected"],
+  pending_review: ["published", "rejected"],
+  published: ["unlisted"],
+  unlisted: [],
+  rejected: [],
+};
 
 test("wallpaper status flow allows processing retry and publication", () => {
   assert.equal(canTransition("draft", "pending_processing"), true);
@@ -13,4 +24,12 @@ test("wallpaper status flow allows processing retry and publication", () => {
 test("unlisted and rejected records are terminal states", () => {
   assert.equal(canTransition("unlisted", "published"), false);
   assert.equal(canTransition("rejected", "pending_processing"), false);
+});
+
+test("status transition matrix matches the documented workflow", () => {
+  for (const from of statuses) {
+    for (const to of statuses) {
+      assert.equal(canTransition(from, to), allowedTransitions[from].includes(to), `unexpected transition ${from} -> ${to}`);
+    }
+  }
 });
