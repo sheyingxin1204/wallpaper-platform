@@ -117,7 +117,7 @@ export async function queueProcessing(id: string, actorId: string) {
   const db = requireDatabase();
   const [wallpaper] = await db.select().from(wallpapers).where(eq(wallpapers.id, id)).limit(1);
   if (!wallpaper) throw new Error("壁纸不存在。");
-  if (!canTransition(wallpaper.status, "pending_processing")) throw new Error("当前状态不能进入处理队列。");
+  if (wallpaper.status !== "draft" && wallpaper.status !== "pending_processing") throw new Error("当前状态不能进入处理队列。");
   const [original] = await db
     .select()
     .from(wallpaperAssets)
@@ -125,7 +125,7 @@ export async function queueProcessing(id: string, actorId: string) {
     .limit(1);
   if (!original) throw new Error("请先上传原图。");
   await db.update(wallpapers).set({ status: "pending_processing", processingError: null }).where(eq(wallpapers.id, id));
-  await audit({ wallpaperId: id, actorId, action: "processing_queued", fromStatus: "draft", toStatus: "pending_processing" });
+  await audit({ wallpaperId: id, actorId, action: "processing_queued", fromStatus: wallpaper.status, toStatus: "pending_processing" });
   return original;
 }
 

@@ -77,7 +77,11 @@ export async function processWallpaper(wallpaperId: string) {
       dominantColor,
       assets: processedAssets,
     });
-    await deleteR2Object(original.storageKey);
+    try {
+      await deleteR2Object(original.storageKey);
+    } catch (cleanupError) {
+      console.warn("Processed wallpaper but could not delete staging object", cleanupError);
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : "未知图片处理错误。";
     await markProcessingFailure(wallpaperId, message);

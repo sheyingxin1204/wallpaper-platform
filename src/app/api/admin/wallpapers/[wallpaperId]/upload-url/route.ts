@@ -4,7 +4,7 @@ import { z } from "zod";
 import { apiError } from "@/lib/api-response";
 import { requireAdmin } from "@/lib/auth-guard";
 import { createR2UploadUrl } from "@/lib/storage/r2";
-import { getAdminWallpaper, setOriginalAsset } from "@/lib/wallpapers/service";
+import { getAdminWallpaper } from "@/lib/wallpapers/service";
 
 const MAX_UPLOAD_BYTES = 30 * 1024 * 1024;
 const uploadSchema = z.object({
@@ -25,7 +25,6 @@ export async function POST(request: Request, context: Context) {
     const timestamp = new Date();
     const key = `staging/${timestamp.getUTCFullYear()}/${String(timestamp.getUTCMonth() + 1).padStart(2, "0")}/${wallpaperId}/${randomUUID()}/original`;
     const uploadUrl = await createR2UploadUrl({ key, contentType, contentLength, expiresInSeconds: 10 * 60 });
-    await setOriginalAsset({ wallpaperId, storageKey: key, mimeType: contentType });
     return NextResponse.json({ key, uploadUrl, expiresInSeconds: 600 });
   } catch (error) {
     return apiError(error);
