@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import sharp from "sharp";
 import { deleteR2Object, readR2Object, writeR2Object } from "@/lib/storage/r2";
-import { completeProcessing, getAdminWallpaper, markProcessingFailure } from "@/lib/wallpapers/service";
+import { completeProcessing, getAdminWallpaper, markProcessingFailure, requiredAssetKinds } from "@/lib/wallpapers/service";
 
 const MAX_INPUT_BYTES = 30 * 1024 * 1024;
 const MAX_INPUT_PIXELS = 64_000_000;
@@ -24,6 +24,56 @@ function assetKey(wallpaperId: string, filename: string) {
   return `wallpapers/${date.getUTCFullYear()}/${String(date.getUTCMonth() + 1).padStart(2, "0")}/${wallpaperId}/${filename}`;
 }
 
+export type GeneratedVariant = {
+  kind: (typeof requiredAssetKinds)[number];
+  body: Buffer;
+  width: number;
+  height: number;
+  byteSize: number;
+  sha256: string;
+  perceptualHash: string;
+};
+
+const variants = [
+  { kind: "original" as const, filename: "original.webp", width: undefined as number | undefined, quality: 92 },
+  { kind: "preview_1920" as const, filename: "preview-1920.webp", width: 1920, quality: 86 },
+  { kind: "preview_960" as const, filename: "preview-960.webp", width: 960, quality: 84 },
+  { kind: "thumbnail_480" as const, filename: "thumbnail-480.webp", width: 480, quality: 80 },
+];
+
+// Pure image pipeline: generates every required variant plus the perceptual
+// hash. Kept separate from storage/queueing so it can be tested without R2.
+export async function generateVariants(source: Buffer): Promise<GeneratedVariant[]> {
+  let metadata;
+  try {
+    metadata = await sharp(source, { limitInputPixels: MAX_INPUT_PIXELS }).metadata();
+  } catch {
+    throw new Error("只支持 JPEG、PNG 或 WebP 图片。");
+  }
+  if (!metadata.width || !metadata.height || !["jpeg", "png", "webp"].includes(metadata.format ?? "")) {
+    throw new Error("只支持 JPEG、PNG 或 WebP 图片。");
+  }
+  if (metadata.width * metadata.height > MAX_INPUT_PIXELS) throw new Error("原图像素超过 6400 万限制。");
+  const perceptualHash = await differenceHash(source);
+  const generated: GeneratedVariant[] = [];
+  for (const variant of variants) {
+    const image = sharp(source).rotate();
+    if (variant.width) image.resize({ width: variant.width, withoutEnlargement: true });
+    const body = await image.webp({ quality: variant.quality }).toBuffer();
+    const info = await sharp(body).metadata();
+    generated.push({
+      kind: variant.kind,
+      body,
+      width: info.width ?? metadata.width,
+      height: info.height ?? metadata.height,
+      byteSize: body.byteLength,
+      sha256: sha256(body),
+      perceptualHash,
+    });
+  }
+  return generated;
+}
+
 export async function processWallpaper(wallpaperId: string) {
   const wallpaper = await getAdminWallpaper(wallpaperId);
   if (!wallpaper) throw new Error("壁纸不存在。");
@@ -43,30 +93,20 @@ export async function processWallpaper(wallpaperId: string) {
     const orientation = metadata.width === metadata.height ? "square" : metadata.width > metadata.height ? "landscape" : "portrait";
     const color = await sharp(source).rotate().resize(1, 1, { fit: "cover" }).removeAlpha().raw().toBuffer();
     const dominantColor = `#${[color[0], color[1], color[2]].map((value) => value.toString(16).padStart(2, "0")).join("")}`;
-    const perceptualHash = await differenceHash(source);
-    const variants = [
-      { kind: "original" as const, filename: "original.webp", width: undefined, quality: 92 },
-      { kind: "preview_1920" as const, filename: "preview-1920.webp", width: 1920, quality: 86 },
-      { kind: "preview_960" as const, filename: "preview-960.webp", width: 960, quality: 84 },
-      { kind: "thumbnail_480" as const, filename: "thumbnail-480.webp", width: 480, quality: 80 },
-    ];
+    const generatedVariants = await generateVariants(source);
     const processedAssets = [];
-    for (const variant of variants) {
-      const image = sharp(source).rotate();
-      if (variant.width) image.resize({ width: variant.width, withoutEnlargement: true });
-      const body = await image.webp({ quality: variant.quality }).toBuffer();
-      const info = await sharp(body).metadata();
-      const storageKey = assetKey(wallpaperId, variant.filename);
-      await writeR2Object({ key: storageKey, body, contentType: "image/webp" });
+    for (const generated of generatedVariants) {
+      const storageKey = assetKey(wallpaperId, variants.find((variant) => variant.kind === generated.kind)!.filename);
+      await writeR2Object({ key: storageKey, body: generated.body, contentType: "image/webp" });
       processedAssets.push({
-        kind: variant.kind,
+        kind: generated.kind,
         storageKey,
         mimeType: "image/webp",
-        width: info.width ?? metadata.width,
-        height: info.height ?? metadata.height,
-        byteSize: body.byteLength,
-        sha256: sha256(body),
-        perceptualHash,
+        width: generated.width,
+        height: generated.height,
+        byteSize: generated.byteSize,
+        sha256: generated.sha256,
+        perceptualHash: generated.perceptualHash,
       });
     }
     await completeProcessing({
