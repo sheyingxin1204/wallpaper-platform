@@ -25,6 +25,15 @@ const client = () =>
 
 const bucket = () => required("R2_BUCKET");
 
+// When a custom public domain is configured, optimized variants can be served
+// directly from R2 instead of through a per-request presigned URL. Returns null
+// when no domain is set so callers keep using private presigned links.
+export function publicAssetUrl(key: string) {
+  const base = process.env.R2_PUBLIC_BASE_URL?.trim();
+  if (!base) return null;
+  return `${base.replace(/\/+$/, "")}/${key}`;
+}
+
 export async function createR2UploadUrl(input: {
   key: string;
   contentType: string;

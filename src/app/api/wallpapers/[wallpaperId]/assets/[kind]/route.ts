@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { assetKinds } from "@/db/schema";
-import { createR2DownloadUrl } from "@/lib/storage/r2";
+import { createR2DownloadUrl, publicAssetUrl } from "@/lib/storage/r2";
 import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { getPublishedAsset } from "@/lib/wallpapers/public-service";
 
@@ -21,6 +21,8 @@ export async function GET(request: Request, context: Context) {
 
   try {
     const download = new URL(request.url).searchParams.get("download") === "1";
+    const publicUrl = download ? null : publicAssetUrl(asset.storageKey);
+    if (publicUrl) return NextResponse.redirect(publicUrl);
     const url = await createR2DownloadUrl({
       key: asset.storageKey,
       expiresInSeconds: 10 * 60,
