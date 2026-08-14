@@ -43,6 +43,8 @@ const toSlug = (value: string) =>
 export function AdminDashboard({ administratorName }: { administratorName: string }) {
   const [view, setView] = useState<View>("wallpapers");
   const [items, setItems] = useState<Wallpaper[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(false);
   const [selected, setSelected] = useState<Detail | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
@@ -71,12 +73,26 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
 
   const refresh = useCallback(async () => {
     try {
-      const data = await api<{ wallpapers: Wallpaper[] }>("/api/admin/wallpapers");
+      const data = await api<{ wallpapers: Wallpaper[]; hasNext: boolean }>("/api/admin/wallpapers?page=1");
       setItems(data.wallpapers);
+      setPage(1);
+      setHasNextPage(data.hasNext);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "无法加载壁纸列表。");
     }
   }, []);
+
+  const loadMore = async () => {
+    try {
+      const next = page + 1;
+      const data = await api<{ wallpapers: Wallpaper[]; hasNext: boolean }>(`/api/admin/wallpapers?page=${next}`);
+      setItems((current) => [...current, ...data.wallpapers]);
+      setPage(next);
+      setHasNextPage(data.hasNext);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "无法加载更多壁纸。");
+    }
+  };
 
   const loadTaxonomy = useCallback(async () => {
     try {
@@ -364,6 +380,7 @@ export function AdminDashboard({ administratorName }: { administratorName: strin
                 </button>
               ))}
               {!items.length && <p className="py-8 text-center text-sm text-zinc-500">暂无草稿</p>}
+              {hasNextPage && <button type="button" onClick={() => void loadMore()} className="mt-2 w-full border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:border-zinc-500">加载更多</button>}
             </div>
           </aside>
 

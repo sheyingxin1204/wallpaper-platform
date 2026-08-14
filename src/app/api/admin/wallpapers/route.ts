@@ -2,14 +2,17 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { apiError } from "@/lib/api-response";
 import { requireAdmin } from "@/lib/auth-guard";
-import { createDraft, getAdminWallpapers } from "@/lib/wallpapers/service";
+import { createDraft, getAdminWallpapersPage } from "@/lib/wallpapers/service";
 
 const createDraftSchema = z.object({ title: z.string().trim().min(1).max(200) });
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     await requireAdmin();
-    return NextResponse.json({ wallpapers: await getAdminWallpapers() });
+    const url = new URL(request.url);
+    const page = Number.parseInt(url.searchParams.get("page") ?? "1", 10);
+    const result = await getAdminWallpapersPage(Number.isFinite(page) ? page : 1);
+    return NextResponse.json({ wallpapers: result.items, hasNext: result.hasNext, page: Math.max(page || 1, 1) });
   } catch (error) {
     return apiError(error);
   }

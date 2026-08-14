@@ -126,7 +126,21 @@ export async function updateDraft(id: string, actorId: string, input: DraftInput
 }
 
 export async function getAdminWallpapers() {
-  return requireDatabase().select().from(wallpapers).orderBy(asc(wallpapers.createdAt));
+  return requireDatabase().select().from(wallpapers).orderBy(desc(wallpapers.createdAt));
+}
+
+export async function getAdminWallpapersPage(page: number, pageSize = 50) {
+  const db = requireDatabase();
+  const safePage = Math.max(page, 1);
+  const safeSize = Math.min(Math.max(pageSize, 1), 100);
+  const rows = await db
+    .select()
+    .from(wallpapers)
+    .orderBy(desc(wallpapers.createdAt))
+    .limit(safeSize + 1)
+    .offset((safePage - 1) * safeSize);
+  const hasNext = rows.length > safeSize;
+  return { items: rows.slice(0, safeSize), hasNext };
 }
 
 export async function listAuditLogs(limit = 200) {
